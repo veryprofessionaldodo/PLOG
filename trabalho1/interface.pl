@@ -1,17 +1,20 @@
 /* -*- Mode:Prolog; coding:iso-8859-1; indent-tabs-mode:nil; prolog-indent-width:8; prolog-paren-indent:3; tab-width:8; -*- */
 
+/* INTERFACE */
+
 board( [
-	   ['w','w',' ',' ','w','w','w','w','w','w','8'],
+	   ['w','w','w','w','w','w','w','w','w','w','8'],
 	   [' ',' ',' ',' ','W',' ',' ',' ',' ',' ','7'],
 	   [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','6'],
 	   [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','5'],
-	   [' ','b',' ',' ','b',' ',' ',' ',' ',' ','4'],
+	   [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','4'],
 	   [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','3'],
 	   [' ',' ',' ',' ',' ','B',' ',' ',' ',' ','2'],
-	   ['b',' ','b','b','b','b',' ','b','b','b','1'],
+	   ['b','b','b','b','b','b','b','b','b','b','1'],
 	   ['a','b','c','d','e','f','g','h','i','j']
 
 	   ]).
+
 
 /* If line reached the end, stop, and print a new line. */
 print_line([]) :- print_newline.
@@ -36,6 +39,4 @@ print_top :- write('------------------------------------------------------------
 
 /* Print on a new line. */
 print_newline :- write('\n').
-
-getPeca(Tabuleiro,Coluna,Linha,Peca):- nth1(Coluna, Tabuleiro, X), nth1(Linha, X, Peca).
 
