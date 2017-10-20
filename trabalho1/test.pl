@@ -32,7 +32,7 @@ print_board :- board(X), print_board(X).
 print_character(X) :- write('|  '), write(X), write('  ').
 
 /* Print separating line. */
-print_top :- write('---------------------------------------------------------------\n').
+print_top :- write('-------------------------------------------------------------\n').
 
 /* Print on a new line. */
 print_newline :- write('\n').
