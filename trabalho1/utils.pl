@@ -14,6 +14,8 @@ ascii_to_number(055,7).
 ascii_to_number(056,8).
 ascii_to_number(057,9).
 
+
+
 /* ASCII value to letter. */
 ascii_to_letter(097, a).
 ascii_to_letter(098, b).
@@ -25,6 +27,8 @@ ascii_to_letter(103, g).
 ascii_to_letter(104, h).
 ascii_to_letter(105, i).
 ascii_to_letter(106, j).
+
+
 
 
 

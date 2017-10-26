@@ -21,14 +21,17 @@ print_line([]) :- print_newline.
 
 /* If line has content, continue reading until the end. */
 print_line( [Head|Tail]) :- print_character(Head), print_line(Tail).
- 
+
 /* If board has reached the end, print the final separating line. */
-print_board([]) : print_top.
+print_board([]) :- print_top.
 
 /* While board has content, continue to print lines. */
 print_board([Head|Tail]) :- print_top, print_line(Head), print_board(Tail).
 
 print_board :- board(X), print_board(X).
+
+/* Tutorial for movement */
+print_make_move:- write('Write your move of type originVertical-originHorizontal-destinationVertical-destinationHorizontal. Like "b-5-b-9."').
 
 
 /* Print specific character. */
