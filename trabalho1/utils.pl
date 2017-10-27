@@ -29,6 +29,18 @@ ascii_to_letter(105, i).
 ascii_to_letter(106, j).
 
 
+/* Split Array into Args */
+string_to_move(StringA-StringB, ListOfMoves):-
+	name(StringA, [ColumnASCII1,RowASCII1]), name(StringB,[ColumnASCII2,RowASCII2]), isColumn(ColumnASCII1), isColumn(ColumnASCII2), name(Row1, [RowASCII1]), name(Row2, [RowASCII2]), 
+	name(Column1, [ColumnASCII1]), name(Column2, [ColumnASCII2]), isRow(Row1), isRow(Row2),
+	ListOfMoves = [Column1,Row1,Column2,Row2].
+
+isColumn(Letter) :- member(Letter, "abcdefghjABCDEFGHJ").
+
+isRow(Number) :- Number > 0, Number < 9.
+
+
+
 
 
 
