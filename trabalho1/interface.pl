@@ -31,7 +31,7 @@ print_board([Head|Tail]) :- print_top, print_line(Head), print_board(Tail).
 print_board :- board(X), print_board(X).
 
 /* Tutorial for movement */
-print_make_move:- write('Write your move like "b5-b9.", b5 being the piece position and b9 the piece destination.').
+print_make_move:- write('Write your move like "b3-b7.", b3 being the piece position and b7 the piece destination.').
 
 /* Print specific character. */
 print_character(X) :- write('|  '), write(X), write('  ').

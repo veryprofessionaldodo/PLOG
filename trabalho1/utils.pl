@@ -39,6 +39,38 @@ isColumn(Letter) :- member(Letter, "abcdefghjABCDEFGHJ").
 
 isRow(Number) :- Number > 0, Number < 9.
 
+/* All valid player letters. */
+player_letter(1,'w').
+player_letter(1,'W').
+player_letter(2,'b').
+player_letter(2,'B').
+
+/* Converts Column Letter to Number */
+column_to_number('a',1).
+column_to_number('b',2).
+column_to_number('c',3).
+column_to_number('d',4).
+column_to_number('e',5).
+column_to_number('f',6).
+column_to_number('g',7).
+column_to_number('h',8).
+column_to_number('i',9).
+column_to_number('j',10).
+
+/* Line Number to position in Board array. */
+line_to_position(1,8).
+line_to_position(2,7).
+line_to_position(3,6).
+line_to_position(4,5).
+line_to_position(5,4).
+line_to_position(6,3).
+line_to_position(7,2).
+line_to_position(8,1).
+
+
+
+
+
 
 
 
