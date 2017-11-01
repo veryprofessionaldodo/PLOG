@@ -22,7 +22,7 @@ playMode(2) :-  board(StartBoard), print_board, nl, write('Good luck!\n'), print
 playMode(3) :-  board(StartBoard), print_board, nl, write('Watch it all unfold before you!\n'), print_make_move, nl, play(StartBoard, 3), nl.
 
 /* Invalid game mode. */
-playMode(X) :-  write('Invalid game type! Try again. \n 1 - Player Versus Player \n 2 - Player Versus AI \n 3 - AI Versus AI'),
+playMode(_) :-  write('Invalid game type! Try again. \n 1 - Player Versus Player \n 2 - Player Versus AI \n 3 - AI Versus AI \n'),
 			read(ReadMode), playMode(ReadMode).
 
 
