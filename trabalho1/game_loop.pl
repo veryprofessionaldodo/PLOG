@@ -5,6 +5,7 @@
 :- use_module(library(lists)).
 
 
+
 /* BEGINNING OF GAME */
 
 
@@ -57,8 +58,32 @@ interpret(X):- write(X).
 
 /* Sees what piece is in position. */
 get_piece(Board,ColumnLetter,Line,Piece):- column_to_number(ColumnLetter, ColumnNumber), line_to_position(Line, LineNumber),
-     nth1(LineNumber, Board, X), nth0(ColumnNumber, X, Piece), write(Piece).
+     nth1(LineNumber, Board, X), nth1(ColumnNumber, X, Piece), write(Piece).
 
+
+/*Substitues a character in a given position on the board*/
+set_piece(Board,ColumnLetter,Line,Piece):- column_to_number(ColumnLetter, ColumnNumber), 
+        line_to_position(Line, LineNumber),
+        X is LineNumber-1,Y is ColumnNumber-1,                                    
+        replace(Board,X,Y,Piece,NewBoard),
+        retract(board(Board)),
+        assert(board(NewBoard)).
+
+replace( [L|Ls] , 0 , ColumnNumber , Piece , [R|Ls] ) :- % once we find the desired row,
+  replace_column(L,ColumnNumber,Piece,R).                % - we replace specified column, and we're done.
+                                         
+replace( [L|Ls] , LineNumber , ColumnNumber , Piece , [L|Rs] ) :-      % if we haven't found the desired row yet
+  LineNumber > 0 ,                                                     % - and the row offset is positive,
+  X1 is LineNumber-1 ,                                                 % - we decrement the row offset
+  replace( Ls , X1 , ColumnNumber , Piece , Rs ).                      % - and recurse down
+                                       
+
+replace_column( [_|Cs] , 0 , Piece , [Piece|Cs] ) .             % once we find the specified offset, just make the substitution and finish up.
+replace_column( [C|Cs] , ColumnNumber , Piece , [C|Rs] ) :-     % otherwise,
+  ColumnNumber > 0 ,                                            % - assuming that the column offset is positive,
+  Y1 is ColumnNumber-1 ,                                        % - we decrement it
+  replace_column( Cs , Y1 , Piece , Rs ).                       % - and recurse down.
+  
 
 
 
