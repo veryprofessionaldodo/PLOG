@@ -46,18 +46,15 @@ read_move(X):- write('Make your move Player '), write(X), nl, read(MoveString), 
 read_move(Y):- write('Invalid move! Do a new valid move.\n'), read_move(Y).
 
 /* Check whether play is valid for a specific player. */ 
-check_if_valid(Move, Player) :- is_own_piece(Move, Player).
+check_if_valid(Move, Player) :- is_own_piece(Move, Player), attempt_to_move(Move).
 
 /* Checks if player is moving is own piece, not an enemy's or a blank space. */
 is_own_piece(Move, Player) :- nth0(0, Move, Column), nth0(1, Move, Line), board(Board), 
-        get_piece(Board, Column, Line, Piece),  player_letter(Player, Piece).
+        get_piece(Board, Column, Line, Piece), player_letter(Player, Piece).
 
 /* Takes input and makes a play out of it. */
-interpret(X):- write(X).
+interpret(Move):- board(Board), write(Move).
 
-/* Sees what piece is in position. */
-get_piece(Board,ColumnLetter,Line,Piece):- column_to_number(ColumnLetter, ColumnNumber), line_to_position(Line, LineNumber),
-     nth1(LineNumber, Board, X), nth0(ColumnNumber, X, Piece), write(Piece).
 
 
 
