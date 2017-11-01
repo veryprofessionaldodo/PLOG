@@ -1,6 +1,8 @@
 /* -*- Mode:Prolog; coding:iso-8859-1; indent-tabs-mode:nil; prolog-indent-width:8; prolog-paren-indent:3; tab-width:8; -*- */
 
 /* Utilities */
+:- dynamic(playcounter/1).
+
 
 /* ASCII value to number. */
 ascii_to_number(048,0).
@@ -66,6 +68,11 @@ line_to_position(5,3).
 line_to_position(6,2).
 line_to_position(7,1).
 line_to_position(8,0).
+
+
+/* Checks if player is moving is own piece, not an enemy's or a blank space. */
+is_own_piece(Move, Player) :- nth0(0, Move, Column), nth0(1, Move, Line), board(Board), 
+        get_piece(Board, Column, Line, Piece), player_letter(Player, Piece).
 
 /* Attempt to move. */
 attempt_to_move(Move) :- is_vertical_or_horizontal(Move).
