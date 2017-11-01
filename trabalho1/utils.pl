@@ -46,26 +46,26 @@ player_letter(2,'b').
 player_letter(2,'B').
 
 /* Converts Column Letter to Number */
-column_to_number('a',1).
-column_to_number('b',2).
-column_to_number('c',3).
-column_to_number('d',4).
-column_to_number('e',5).
-column_to_number('f',6).
-column_to_number('g',7).
-column_to_number('h',8).
-column_to_number('i',9).
-column_to_number('j',10).
+column_to_number('a',0).
+column_to_number('b',1).
+column_to_number('c',2).
+column_to_number('d',3).
+column_to_number('e',4).
+column_to_number('f',5).
+column_to_number('g',6).
+column_to_number('h',7).
+column_to_number('i',8).
+column_to_number('j',9).
 
 /* Line Number to position in Board array. */
-line_to_position(1,8).
-line_to_position(2,7).
-line_to_position(3,6).
-line_to_position(4,5).
-line_to_position(5,4).
-line_to_position(6,3).
-line_to_position(7,2).
-line_to_position(8,1).
+line_to_position(1,7).
+line_to_position(2,6).
+line_to_position(3,5).
+line_to_position(4,4).
+line_to_position(5,3).
+line_to_position(6,2).
+line_to_position(7,1).
+line_to_position(8,0).
 
 /* Attempt to move. */
 attempt_to_move(Move) :- is_vertical_or_horizontal(Move).
@@ -114,9 +114,6 @@ check_from_X_to_Y_Column_Left(Board, Column, Row1, Row2) :- get_piece(Board, Col
 check_from_X_to_Y_Column(Board, Row, Column, Column).
 
 
-/* Sees what piece is in position. */
-get_piece(Board,ColumnLetter,Line,Piece):- column_to_number(ColumnLetter, ColumnNumber), line_to_position(Line, LineNumber),
-     nth1(LineNumber, Board, X), nth0(ColumnNumber, X, Piece).
 
 
 

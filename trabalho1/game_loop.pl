@@ -56,14 +56,13 @@ interpret(Move):- board(Board), write(Move).
 
 /* Sees what piece is in position. */
 get_piece(Board,ColumnLetter,Line,Piece):- column_to_number(ColumnLetter, ColumnNumber), line_to_position(Line, LineNumber),
-     nth1(LineNumber, Board, X), nth1(ColumnNumber, X, Piece), write(Piece).
+     nth0(LineNumber, Board, X), nth0(ColumnNumber, X, Piece).
 
 
 /*Substitues a character in a given position on the board*/
 set_piece(Board,ColumnLetter,Line,Piece):- column_to_number(ColumnLetter, ColumnNumber), 
-        line_to_position(Line, LineNumber),
-        X is LineNumber-1,Y is ColumnNumber-1,                                    
-        replace(Board,X,Y,Piece,NewBoard),
+        line_to_position(Line, LineNumber),                                   
+        replace(Board,LineNumber,ColumnNumber,Piece,NewBoard),
         retract(board(Board)),
         assert(board(NewBoard)).
 
