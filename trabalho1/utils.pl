@@ -83,9 +83,7 @@ check_from_X_to_Y_Column(Board, Row, Column, Column):-get_piece(Board, Column, R
 check_from_X_to_Y_Column(Board, Row, Column1, Column2) :- ((Column1 < Column2, NewColumn1 is Column1 + 1) ; (Column1 > Column2, NewColumn1 is Column1 -1)),
 		get_piece(Board, NewColumn1, Row, Piece), isEqual(Piece, ' '), check_from_X_to_Y_Column_Right(Board, Row, NewColumn1, Column2).
 
-% Sees what piece is in position. 
-get_piece(Board,Column,Line,Piece):- column_to_number(Column, ColumnNumber), line_to_position(Line, LineNumber),
-		nth1(LineNumber, Board, X), nth1(ColumnNumber, X, Piece).
+
 
 % Checks if player is moving is own piece, not an enemy's or a blank space. 
 is_own_piece(Move, Player) :- nth0(0, Move, Column), nth0(1, Move, Line), board(Board), 

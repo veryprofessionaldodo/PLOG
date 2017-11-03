@@ -36,13 +36,35 @@ play(3) :- print_board.
 
 %* Reads move for a player passed in argument. 
 read_move(X):- write('Make your move Player '), write(X), nl, read(MoveString), string_to_move(MoveString, Move), check_if_valid(Move, X),
-	move(Move).
+	move(Move),is_game_over.
 
 read_move(Y):- write('Invalid move! Do a new valid move.\n'), read_move(Y).
 
 %Checks if the game ended
-is_game_over:- 
-        playcounter(X), X>0 , Y is X-1, retract(playcounter(X)), assert(playcounter(Y)). %atualiza número de jogadas restantes
+is_game_over:-board(Board), check_soldiers_and_Dux(Board,0,0,0,0), 
+            playcounter(X), X>0 , Y is X-1, retract(playcounter(X)), assert(playcounter(Y)). %atualiza número de jogadas restantes
+
+
+check_soldiers_and_Dux(_,1,1,1,1).   % tudo normal continuar normalmente
+
+check_soldiers_and_Dux(T,Pb,PB,Pw,PW):- 
+            length(T, 1), Pb=0, write('Player 2 Lost \n'),
+            !, fail;
+            length(T, 1), PB=0, write('Player 2 Lost \n');
+            length(T, 1), Pw=0, write('Player 1 Lost \n');
+            length(T, 1), PW=0, write('Player 1 Lost \n'),
+            !, fail.
+
+check_soldiers_and_Dux([H|T],Pb,PB,Pw,PW):-check_soldiers_and_Dux_Row(H,Pb,PB,Pw,PW,T). % dá check nas filas 1 a 1 por peças
+
+check_soldiers_and_Dux_Row(T,Pb,PB,Pw,PW,X):- length(T, 1),check_soldiers_and_Dux(X,Pb,PB,Pw,PW). % acabou fila atual passa para a próxima
+
+check_soldiers_and_Dux_Row([H|T],Pb,PB,Pw,PW,X):-
+            H = 'b',check_soldiers_and_Dux_Row(T,1,PB,Pw,PW,X);
+            H = 'B',check_soldiers_and_Dux_Row(T,Pb,1,Pw,PW,X);
+            H = 'w',check_soldiers_and_Dux_Row(T,Pb,PB,1,PW,X);
+            H = 'W',check_soldiers_and_Dux_Row(T,Pb,PB,Pw,1,X);
+            H = ' ',check_soldiers_and_Dux_Row(T,Pb,PB,Pw,PW,X).
 
 % Check whether play is valid for a specific player. 
 check_if_valid(Move, Player) :- is_own_piece(Move, Player), attempt_to_move(Move).
@@ -53,6 +75,9 @@ move(Move):-board(Board),
         nth0(2, Move, ColumnNewPos), nth0(3, Move, LineNewPos), set_piece(ColumnNewPos,LineNewPos,Piece),                                           %moves it to the new position
         set_piece(ColumnPieceToMove,LinePieceToMove,' ').  
 
+% Sees what piece is in position. 
+get_piece(Board,Column,Line,Piece):- column_to_number(Column, ColumnNumber), line_to_position(Line, LineNumber),
+                nth1(LineNumber, Board, X), nth1(ColumnNumber, X, Piece).
 
 % Replaces a character in a given position on the board.
 set_piece(ColumnLetter,Line,Piece):- column_to_number(ColumnLetter, ColumnNumber), 
