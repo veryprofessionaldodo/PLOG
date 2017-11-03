@@ -17,16 +17,20 @@ playMode(2) :-  clear_global_variables, print_board, nl, write('Good luck!\n'), 
 playMode(3) :-  clear_global_variables, print_board, nl, write('Watch it all unfold before you!\n'), print_make_move, nl, play(3), nl.
 
 /* Invalid game mode. */
+
 playMode(_) :-  write('Invalid game type! Try again. \n 1 - Player Versus Player \n 2 - Player Versus AI \n 3 - AI Versus AI \n'),
 			read(ReadMode), playMode(ReadMode).
 
 
-clear_global_variables :- retractall(board(_)), initial_board(StartBoard), assert(board(StartBoard)), retractall(playcounter(_)), assert(playcounter(100)).
+clear_global_variables :- retractall(board(_)), initial_board(StartBoard), assert(board(StartBoard)), 
+            retractall(playcounter(_)), assert(playcounter(100)).
 
 /* THE GAME LOOP */
 
 /* Game Loop, in pvp. */
-play(1) :- read_move(1), print_board, read_move(2), print_board, play(1).
+play(1) :-  read_move(1), print_board, %lê jogada jogador 1      
+            read_move(2), print_board, %lê jogada jogador 2
+            play(1). %chamada recursiva
 
 /* Game Loop in pvAI. */
 play(2) :- print_board.
@@ -41,19 +45,18 @@ read_move(X):- write('Make your move Player '), write(X), nl, read(MoveString), 
 read_move(Y):- write('Invalid move! Do a new valid move.\n'), read_move(Y).
 
 %Checks if the game ended
-is_game_over:-board(Board), check_soldiers_and_Dux(Board,0,0,0,0), 
+is_game_over:-board(Board), check_soldiers_and_Dux(Board,0,0,0,0),
             playcounter(X), X>0 , Y is X-1, retract(playcounter(X)), assert(playcounter(Y)). %atualiza número de jogadas restantes
+is_game_over:-write('The game ended with a draw. \n'), break.
 
-
+%checks if one of the players lost
 check_soldiers_and_Dux(_,1,1,1,1).   % tudo normal continuar normalmente
 
 check_soldiers_and_Dux(T,Pb,PB,Pw,PW):- 
-            length(T, 1), Pb=0, write('Player 2 Lost \n'),
-            !, fail;
-            length(T, 1), PB=0, write('Player 2 Lost \n');
-            length(T, 1), Pw=0, write('Player 1 Lost \n');
-            length(T, 1), PW=0, write('Player 1 Lost \n'),
-            !, fail.
+            length(T, 1), Pb=0, print_board, write('Player 2 Lost \n'), break;
+            length(T, 1), PB=0, print_board, write('Player 2 Lost \n'), break;
+            length(T, 1), Pw=0, print_board, write('Player 1 Lost \n'), break;
+            length(T, 1), PW=0, print_board, write('Player 1 Lost \n'), break.
 
 check_soldiers_and_Dux([H|T],Pb,PB,Pw,PW):-check_soldiers_and_Dux_Row(H,Pb,PB,Pw,PW,T). % dá check nas filas 1 a 1 por peças
 

@@ -1,6 +1,7 @@
 % Utilities 
 :- dynamic(playcounter/1).
 
+
 is_row(Number) :- Number > 0, Number < 9.
 
 isEqual(A,A).
