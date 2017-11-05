@@ -16,7 +16,6 @@ initial_board( [
 
 	   ]).
 
-
 % If line reached the end, stop, and print a new line. 
 print_line([]) :- print_newline.
 

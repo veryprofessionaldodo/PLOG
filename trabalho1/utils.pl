@@ -18,6 +18,7 @@ player_dux(2,'B').
 opposing_player(1,2).
 opposing_player(2,1).   
 
+
 % Converts Column Letter to Number 
 column_to_number('a',1).
 column_to_number('A',1).

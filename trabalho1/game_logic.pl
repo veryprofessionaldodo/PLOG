@@ -19,6 +19,7 @@ check_from_X_to_Y_Row(Board, Column, Row, Row) :- get_piece(Board, Column, Row, 
 check_from_X_to_Y_Row(Board, Column, Row1, Row2) :- get_piece(Board, Column, Row1, Piece), equal(Piece,' '),
 		((Row1 < Row2, NewRow1 is Row1 + 1) ; (Row1 > Row2, NewRow1 is Row1 - 1)), check_from_X_to_Y_Row(Board, Column, NewRow1, Row2).
 
+
 % Horizontal
 traverse_move_horizontal(Board, Move) :- nth0(0, Move,ColumnLetter1), nth0(2, Move, ColumnLetter2), nth0(3, Move, Row),
 		column_to_number(ColumnLetter1, Column1), column_to_number(ColumnLetter2, Column2), Column1 \= Column2, 
