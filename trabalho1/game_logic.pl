@@ -53,7 +53,7 @@ check_surroundings(Player, Enemy, Column, Row) :- write('Check Surroundings'), b
 		 player_letter(N, Piece), equal(N, Enemy), !, is_in_previous_warfare(Column, NewRow2, Player, Column, Row)))). % If not, then the piece can move.
 
 % If no enemy is around player, he can move without restriction.
-check_surroundings(Player, Enemy, Column, Row).
+check_surroundings(_, _, _, _).
 
 % Checks if surrouding enemy piece is already in warfare with another ally.
 is_in_previous_warfare(Column, Row, Player, PlayerColumn, PlayerRow) :- board(Board),
@@ -64,4 +64,4 @@ is_in_previous_warfare(Column, Row, Player, PlayerColumn, PlayerRow) :- board(Bo
 		 (NewRow1 is Row + 1, NewRow1 \== PlayerRow, get_piece(Board, Column, NewRow1, Piece),
 		 	player_letter(N, Piece), equal(N, Player)) ;        % can move freely.
 		 (NewRow2 is Row - 1 , NewRow2 \== PlayerRow, get_piece(Board, Column, NewRow2, Piece),
-		 	player_letter(N, Piece), equal(N, Player)).
+		 	player_letter(N, Piece), equal(N, Player))).
