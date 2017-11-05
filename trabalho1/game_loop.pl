@@ -3,7 +3,9 @@
 :- reconsult(game_logic).
 :- use_module(library(lists)).
 
-/* BEGINNING OF GAME */
+/****************************/
+/*****BEGINNING OF GAME *****/
+/****************************/
 
 latrunculli:- write('Which type of game do you want to play? \n 1 - Player Versus Player \n 2 - Player Versus AI \n 3 - AI Versus AI\n'),
             read(ReadMode), playMode(ReadMode).
@@ -25,7 +27,10 @@ playMode(_) :-  write('Invalid game type! Try again. \n 1 - Player Versus Player
 clear_global_variables :- retractall(board(_)), initial_board(StartBoard), assert(board(StartBoard)), 
             retractall(playcounter(_)), assert(playcounter(100)).
 
-/* THE GAME LOOP */
+
+/****************************/
+/********THE GAME LOOP ******/
+/****************************/
 
 /* Game Loop, in pvp. */
 play(1) :-  read_move(1), print_board, %l?jogada jogador 1      
@@ -40,10 +45,100 @@ play(3):- print_board.
 
 %* Reads move for a player passed in argument. 
 read_move(X):- write('Make your move Player '), write(X), nl, read(MoveString), string_to_move(MoveString, Move), check_if_valid(Move, X), !,
-	move(Move),is_game_over.
+	move(Move),remove_captured_pieces(Move,X),is_game_over.
 
 read_move(Y):- write('Invalid move! Do a new valid move.\n'), read_move(Y).
 
+
+/*****************************/
+/****Removes captured PIECES*/
+/****************************/
+
+remove_captured_pieces(Move,Player) :- checks_the_direction_of_move(Move,Direction),
+            nth0(2, Move, PosX), nth0(3, Move, PosY), Pos = [PosX,PosY],
+            flank_attack(Pos,Direction,Player),
+            phalanx_attack(Pos,Direction,Player),
+            normal_capture(Pos,Player).
+
+%flank rule
+helper_flank_attack(Pos,Direction,Player):- add1_pos(Direction,Pos,NextPiece),board(Board),nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),player_letter(Player,Piece).
+
+helper_flank_attack(Pos,Direction,Player):- add1_pos(Direction,Pos,NextPiece),board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),opposing_player(Player,OppPlayer),player_letter(OppPlayer,Piece),
+            helper_flank_attack(NextPiece,Direction,Player).
+
+flank_attack(Pos,Direction,Player):-add1_pos(Direction,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece), 
+            helper_flank_attack(NextPiece,Direction,Player),
+            set_piece(ColumnLetter,Line,' ').
+
+flank_attack(_,_,_).
+
+%phalanx/testudo rule
+helper_phalanx_attack(Direction, Direction2, Pos,NextPiece,Player):-
+                                        add1_pos(Direction2,Pos,NextPieceForPhalanx), board(Board), nth0(0,NextPieceForPhalanx,ColumnPhalanxLetter), nth0(1,NextPieceForPhalanx,LinePhalanx),
+                                        column_to_number(ColumnPhalanxLetter, ColumnPhalanx),get_piece(Board,ColumnPhalanx,LinePhalanx,Piece),player_letter(Player,Piece), 
+                                        add1_pos(Direction,NextPiece,NextPieceForPhalanx2), nth0(0,NextPieceForPhalanx2,ColumnLetter), nth0(1,NextPieceForPhalanx2,Line),
+                                        column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece2),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece2),
+                                        set_piece(ColumnLetter,Line,' ').
+
+helper_phalanx_attack(Direction, Direction2, Pos,NextPiece,Player):-
+                                        add1_pos(Direction2,Pos,NextPieceForPhalanx), board(Board), nth0(0,NextPieceForPhalanx,ColumnPhalanxLetter), nth0(1,NextPieceForPhalanx,LinePhalanx),
+                                        column_to_number(ColumnPhalanxLetter, ColumnPhalanx),get_piece(Board,ColumnPhalanx,LinePhalanx,Piece),player_letter(Player,Piece), 
+                                        add1_pos(Direction,NextPiece,NextPieceForPhalanx2), nth0(0,NextPieceForPhalanx2,ColumnLetter), nth0(1,NextPieceForPhalanx2,Line),
+                                        column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece2),player_letter(Player,Piece2),
+                                        helper_phalanx_attack(Direction,Direction2,NextPiece,NextPieceForPhalanx2,Player).
+
+phalanx_attack(Pos,Direction,Player):-add1_pos(Direction,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),player_letter(Player,Piece),directions_90(Direction,X,_), helper_phalanx_attack(Direction,X,Pos,NextPiece,Player). 
+
+phalanx_attack(Pos,Direction,Player):-add1_pos(Direction,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+             column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),player_letter(Player,Piece), directions_90(Direction,_,X), helper_phalanx_attack(Direction,X,Pos,NextPiece,Player). 
+
+phalanx_attack(_,_,_).
+
+%normal capture
+check_if_player_piece_or_wall(NextPiece,_):-
+            nth0(0,NextPiece,Column), Column>10;
+            nth0(0,NextPiece,Column), Column<1;
+            nth0(1,NextPiece,Line), Line>8;
+            nth0(1,NextPiece,Line), Line<1.
+            
+
+check_if_player_piece_or_wall(NextPiece,Player):- board(Board), nth0(0,NextPiece,Column), nth0(1,NextPiece,Line),
+            get_piece(Board,Column,Line,Piece),player_letter(Player,Piece).
+
+
+
+normal_capture(Pos,Player):- add1_pos(1,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),
+            Y1 is Line+1 , NextPiece2 =[Column,Y1],check_if_player_piece_or_wall(NextPiece2,Player),
+            set_piece(ColumnLetter,Line,' '),fail.
+
+normal_capture(Pos,Player):-add1_pos(4,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),
+            Y1 is Line-1, NextPiece2 =[Column,Y1],check_if_player_piece_or_wall(NextPiece2,Player),
+            set_piece(ColumnLetter,Line,' '),fail.
+
+normal_capture(Pos,Player):- add1_pos(2,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),
+            X1 is Column-1 ,NextPiece2 =[X1,Line],check_if_player_piece_or_wall(NextPiece2,Player),
+            set_piece(ColumnLetter,Line,' '),fail.
+
+normal_capture(Pos,Player):- add1_pos(3,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),
+            X1 is Column+1,NextPiece2 =[X1,Line],check_if_player_piece_or_wall(NextPiece2,Player),
+            set_piece(ColumnLetter,Line,' ').
+            
+
+normal_capture(_,_).
+
+
+
+/****************************/
+/*******GAME OVER Predicates*/
+/****************************/
 %Checks if the game ended
 is_game_over:-board(Board), check_soldiers_and_Dux(Board,0,0,0,0),
             playcounter(X), X>0 , Y is X-1, retract(playcounter(X)), assert(playcounter(Y)). %atualiza n?mero de jogadas restantes
@@ -72,7 +167,11 @@ check_soldiers_and_Dux_Row([H|T],Pb,PB,Pw,PW,X):-
 % Check whether play is valid for a specific player. 
 check_if_valid(Move, Player) :- is_own_piece(Move, Player), attempt_to_move(Move).
 
- /*Moves a PIECE*/
+
+/*********************************/
+/****** MOVE GET AND SET*********/
+/*******************************/
+
 move(Move):-board(Board),
         nth0(0, Move, ColumnLetter), nth0(1, Move, LinePieceToMove), column_to_number(ColumnLetter, ColumnPieceToMove),
         get_piece(Board,ColumnPieceToMove,LinePieceToMove,Piece),                  %gets the piece on a given position
