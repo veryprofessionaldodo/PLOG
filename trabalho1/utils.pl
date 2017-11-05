@@ -1,10 +1,10 @@
 % Utilities 
 :- dynamic(playcounter/1).
 
-
 is_row(Number) :- Number > 0, Number < 9.
+isColumn(Letter) :- member(Letter, "abcdefghjABCDEFGHJ").
 
-isEqual(A,A).
+equal(A,A).
 
 % All valid player letters. 
 player_letter(1,'w').
@@ -40,7 +40,6 @@ string_to_move(StringA-StringB, ListOfMove):-
 	name(Column1, [ColumnASCII1]), name(Column2, [ColumnASCII2]), is_row(Row1), is_row(Row2),
 	ListOfMove = [Column1,Row1,Column2,Row2].
 
-isColumn(Letter) :- member(Letter, "abcdefghj").
 
 % Line Number to position in Board array. 
 line_to_position(1,8).
@@ -51,42 +50,4 @@ line_to_position(5,4).
 line_to_position(6,3).
 line_to_position(7,2).
 line_to_position(8,1).
-
-% Attempt to move. 
-attempt_to_move(Move) :- is_vertical_or_horizontal(Move).
-
-% Check if is horizontal or vertical move. 
-is_vertical_or_horizontal(Move) :- vertical(Move) ; horizontal(Move).
-
-horizontal(Move) :- nth0(1, Move, Row), nth0(3, Move, Row), board(Board), traverse_move_horizontal(Board, Move). 
-vertical(Move) :- nth0(0, Move, Column), nth0(2, Move, Column), board(Board), traverse_move_vertical(Board, Move).  
-
-% Vertical
-traverse_move_vertical(Board, Move) :- nth0(0, Move,Column), nth0(1, Move, Row1), nth0(3, Move, Row2), Row1 \= Row2,
-			((Row1 < Row2, NewRow1 is Row1 + 1) ; (Row1 > Row2, NewRow1 is Row1 -1)), check_from_X_to_Y_Row(Board, Column, NewRow1, Row2).
-
-% End Condition 
-check_from_X_to_Y_Row(Board, Column, Row, Row) :- get_piece(Board, Column, Row, Piece), isEqual(Piece,' '). 
-
-check_from_X_to_Y_Row(Board, Column, Row1, Row2) :- get_piece(Board, Column, Row1, Piece),  isEqual(Piece,' '),
-		((Row1 < Row2, NewRow1 is Row1 + 1) ; (Row1 > Row2, NewRow1 is Row1 - 1)), check_from_X_to_Y_Row(Board, Column, NewRow1, Row2).
-
-
-% Horizontal
-traverse_move_horizontal(Board, Move) :- nth0(0, Move,ColumnLetter1), nth0(2, Move, ColumnLetter2), nth0(3, Move, Row),
-	    column_to_number(ColumnLetter1, Column1), column_to_number(ColumnLetter2, Column2), Column1 \= Column2, 
-	    ((Column1 < Column2, NewColumn1 is Column1 + 1) ; (Column1 > Column2, NewColumn1 is Column1 -1)),
-	    check_from_X_to_Y_Column(Board, Row, NewColumn1, Column2).
-
-% End Condition
-check_from_X_to_Y_Column(Board, Row, Column, Column):-get_piece(Board, Column, Row, Piece), isEqual(Piece,' ').
-
-check_from_X_to_Y_Column(Board, Row, Column1, Column2) :- ((Column1 < Column2, NewColumn1 is Column1 + 1) ; (Column1 > Column2, NewColumn1 is Column1 -1)),
-		get_piece(Board, NewColumn1, Row, Piece), isEqual(Piece, ' '), check_from_X_to_Y_Column_Right(Board, Row, NewColumn1, Column2).
-
-
-
-% Checks if player is moving is own piece, not an enemy's or a blank space. 
-is_own_piece(Move, Player) :- nth0(0, Move, Column), nth0(1, Move, Line), board(Board), 
-        get_piece(Board, Column, Line, Piece), player_letter(Player, Piece).
 
