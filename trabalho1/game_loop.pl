@@ -58,7 +58,8 @@ remove_captured_pieces(Move,Player) :- checks_the_direction_of_move(Move,Directi
             nth0(2, Move, PosX), nth0(3, Move, PosY), Pos = [PosX,PosY],
             flank_attack(Pos,Direction,Player),
             phalanx_attack(Pos,Direction,Player),
-            normal_capture(Pos,Player).
+            normal_capture(Pos,Player),
+            check_mate(Pos).
 
 
 %flank rule
@@ -138,7 +139,55 @@ normal_capture(Pos,Player):- add1_pos(3,Pos,NextPiece), board(Board), nth0(0,Nex
 
 normal_capture(_,_).
 
+%Did the Dux get captured
 
+is_Dux_in_Guerrilla(Player,DuxPos):-add1_pos(1,DuxPos,NextPieceUp), board(Board), nth0(0,NextPieceUp,ColumnLetterUp), nth0(1,NextPieceUp,LineUp),                           
+            column_to_number(ColumnLetterUp, ColumnUp),get_piece(Board,ColumnUp,LineUp,PieceUp),opposing_player(Player,OppPlayer1),player_letter(OppPlayer1,PieceUp);
+                                    add1_pos(4,DuxPos,NextPieceDown), board(Board), nth0(0,NextPieceDown,ColumnLetterDown), nth0(1,NextPieceDown,LineDown),                           
+            column_to_number(ColumnLetterDown, ColumnDown),get_piece(Board,ColumnDown,LineDown,PieceDown),opposing_player(Player,OppPlayer4),player_letter(OppPlayer4,PieceDown);
+                                    add1_pos(2,DuxPos,NextPieceLeft), board(Board), nth0(0,NextPieceLeft,ColumnLetterLeft), nth0(1,NextPieceLeft,LineLeft),                           
+            column_to_number(ColumnLetterLeft, ColumnLeft),get_piece(Board,ColumnLeft,LineLeft,PieceLeft),opposing_player(Player,OppPlayer2),player_letter(OppPlayer2,PieceLeft);
+                                    add1_pos(3,DuxPos,NextPieceRight), board(Board), nth0(0,NextPieceRight,ColumnLetterRight), nth0(1,NextPieceRight,LineRight),                           
+            column_to_number(ColumnLetterRight, ColumnRight),get_piece(Board,ColumnRight,LineRight,PieceRight),opposing_player(Player,OppPlayer3),player_letter(OppPlayer3,PieceRight).
+                                    
+check_mate_check_piece_or_wall(Player,NextPiece,DuxPos):-            %if it is out of borders follows the rule
+            nth0(0,NextPiece,Column), Column>10, is_Dux_in_Guerrilla(Player,DuxPos);
+            nth0(0,NextPiece,Column), Column<1, is_Dux_in_Guerrilla(Player,DuxPos);
+            nth0(1,NextPiece,Line), Line>8, is_Dux_in_Guerrilla(Player,DuxPos);
+            nth0(1,NextPiece,Line), Line<1, is_Dux_in_Guerrilla(Player,DuxPos).
+
+
+check_mate_check_piece_or_wall(_,NextPiece,_):-board(Board), nth0(0,NextPiece,Column), nth0(1,NextPiece,Line),                           %Gets position of the upper piece
+            get_piece(Board,Column,Line,Piece),player_letter(_,Piece).
+            
+
+ 
+helper_check_mate(Player,DuxPos):- 
+            nth0(0,DuxPos,ColumnLetterUp), nth0(1,DuxPos,LineUp),  column_to_number(ColumnLetterUp, ColumnUp), Y1 is LineUp+1 , NextPieceUp =[ColumnUp,Y1], 
+            check_mate_check_piece_or_wall(Player,NextPieceUp,DuxPos),
+            
+            nth0(0,DuxPos,ColumnLetterDown), nth0(1,DuxPos,LineDown),  column_to_number(ColumnLetterDown, ColumnDown), Y2 is LineDown-1 , NextPieceDown =[ColumnDown,Y2],
+            check_mate_check_piece_or_wall(Player,NextPieceDown,DuxPos),
+            
+            nth0(0,DuxPos,ColumnLetterLeft), nth0(1,DuxPos,LineLeft),  column_to_number(ColumnLetterLeft, ColumnLeft), X1 is ColumnLeft-1 ,NextPieceLeft =[X1,LineLeft],
+            check_mate_check_piece_or_wall(Player,NextPieceLeft,DuxPos),
+            
+            nth0(0,DuxPos,ColumnLetterRight), nth0(1,DuxPos,LineRight),  column_to_number(ColumnLetterRight, ColumnRight), X2 is ColumnRight+1 , NextPieceRight =[X2,LineRight],
+            check_mate_check_piece_or_wall(Player,NextPieceRight,DuxPos).
+
+check_mate(Pos):-add1_pos(1,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                         
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),player_dux(Player,Piece),helper_check_mate(Player,NextPiece),set_piece(ColumnLetter,Line,' ').
+
+check_mate(Pos):-add1_pos(4,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                         
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),player_dux(Player,Piece),helper_check_mate(Player,NextPiece),set_piece(ColumnLetter,Line,' ').
+
+check_mate(Pos):-add1_pos(2,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                         
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),player_dux(Player,Piece),helper_check_mate(Player,NextPiece),set_piece(ColumnLetter,Line,' ').
+
+check_mate(Pos):-add1_pos(3,Pos,NextPiece), board(Board), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                         
+            column_to_number(ColumnLetter, Column),get_piece(Board,Column,Line,Piece),player_dux(Player,Piece),helper_check_mate(Player,NextPiece),set_piece(ColumnLetter,Line,' ').
+            
+check_mate(_).
 
 /****************************/
 /*******GAME OVER Predicates*/
