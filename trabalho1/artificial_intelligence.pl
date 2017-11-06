@@ -12,7 +12,6 @@
 % 1 - Position to enemy pawn
 % 0 - No available move that attack enemy, random move selected.
 
-
 AILevel(1).
 AILevel(2).
 AILevel(3).
@@ -36,29 +35,28 @@ gather_moves_by_row([Piece|Tail], ListOfMoves, RowNumber, ColumnNumber) :- gathe
 % Gather all moves in a specific place.			
 gather_moves_piece(Piece, RowNumber, ColumnNumber, ListOfMoves).
 
+/* ORDEM DE PRIORIDADES 
+	1a O Dux inimigo está exposto?
+		Se sim, consegue atacar diretamente?
+		Se não, consegue dar a volta para o atacar?
+	2a O Dux aliado está em perigo?
+		Se sim
+			O Dux pode-se movimentar para se por em mais segurança?
+				Se sim, faze-lo.
+				Se não, pôr uma peça entre inimigo que poderá atacar e Dux aliado.
+	3a Há algum inimigo que possa ser flanqueado?
+		Se sim, flanquear.
+	4a Há algum inimigo que possa ser capturado por Testudo (NOTA: Verificar se já existe uma formação existente ou prestes a existir)
+		Se sim, capturar.
+	5a Há algum inimigo que possa ser capturado por Ataque de Falange?
+		Se sim, capturar.
+	6a Há alguma peça que possa ser capturada?
+		Se sim, capturar.
+		Se não, posicionar alguma peça de forma a que possa ser capturada na jogada seguinte.
+	7a Fazer uma jogada random.
 
-% TODO
-
-% Takes all available moves, and orders them by effiency according to table above.
-% Each difficulty has specific moves that it can verify. Hardest difficulty can play all atack formations
-% while easier difficulties can't utilize those moves.
-
-% HARD
-order_moves_by_efficiency(AILevel, ListOfMoves, OrderedList) :- AILevel == 3.
-
-% MEDIUM
-order_moves_by_efficiency(AILevel, ListOfMoves, OrderedList) :- AILevel == 3.
-
-% EASY
-order_moves_by_efficiency(AILevel, ListOfMoves, OrderedList) :- AILevel == 3.
-
-% Verifications
-dux_in_danger().
-
-attack_testudo().
-
-attack_flank().
-
-attack_phalanx().
-
-
+	Para cada nivel de dificuldade:
+		Dificil - Vê a posição de todas as peças, e analisa todas as regras acima.
+		Médio - Vê a posição de 70% das peças, e não capturar nem por Testudp nem por Falange.
+		Fácil - Vê a posição de 50% das peças, não sabe flanquear, atacar por Testudo, nem Falange. Não sabe defender bem próprio Dux (não põe nenhuma peça no meio, tenta só mexer o Dux).
+*/
