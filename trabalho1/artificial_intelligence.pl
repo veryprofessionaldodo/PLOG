@@ -14,10 +14,9 @@
 
 AILevel(1).
 AILevel(2).
-AILevel(3).
 
 % Gather all moves for all pieces.
-gather_all_moves(AIDifficulty, ListOfMoves) :- AILevel(AIDifficulty), write('\nThinking...\n'), board(Board), gather_moves_recursive(Board, ListOfMoves, 0).
+gather_all_moves(AIDifficulty, ListOfMoves) :- AILevel(AIDifficulty), write('\nThinking...\n'), board(Board), gather_moves_recursive(Board, ListOfMoves, 0), write(ListOfMoves).
 
 % End of recursion.
 gather_moves_recursive([], ListOfMoves, RowNumber).
@@ -31,9 +30,15 @@ gather_moves_by_row([], ListOfMoves, RowNumber, ColumnNumber).
 % Gather all pieces in a Row.
 gather_moves_by_row([Piece|Tail], ListOfMoves, RowNumber, ColumnNumber) :- gather_moves_piece(Piece, RowNumber, ColumnNumber, ListOfMoves), NewColumn is ColumnNumber + 1, 
 			gather_moves_by_row(Tail, ListOfMoves, RowNumber, NewColumn). 
-
+/*
 % Gather all moves in a specific place.			
-gather_moves_piece(Piece, RowNumber, ColumnNumber, ListOfMoves).
+gather_moves_piece(Piece, RowNumber, ColumnNumber, ListOfMoves) :-
+		NewColumn1 is ColumnNumber - 1, gather_moves_left(ListOfMoves, ColumnNumber, RowNumber, NewColumn1, RowNumber),
+		NewColumn2 is ColumnNumber + 1, gather_moves_rigth(ListOfMoves, ColumnNumber, RowNumber, NewColumn2, RowNumber),
+		NewRow1 is RowNumber - 1, gather_moves_down(ListOfMoves, ColumnNumber, RowNumber, ColumnNumber, NewRow1),
+		NewRow2 is RowNumber + 1, gather_moves_up(ListOfMoves, ColumnNumber, RowNumber, ColumnNumber, NewRow2).
+
+gather_moves_left(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber) :-  NewColumn1 is ColumnNumber - 1, NewColumn1 > 0, get_piece(NewColumn1, RowNumber, Piece), Piece = ' '. */
 
 /* ORDEM DE PRIORIDADES 
 	1a O Dux inimigo está exposto?
@@ -57,6 +62,5 @@ gather_moves_piece(Piece, RowNumber, ColumnNumber, ListOfMoves).
 
 	Para cada nivel de dificuldade:
 		Dificil - Vê a posição de todas as peças, e analisa todas as regras acima.
-		Médio - Vê a posição de 70% das peças, e não capturar nem por Testudp nem por Falange.
-		Fácil - Vê a posição de 50% das peças, não sabe flanquear, atacar por Testudo, nem Falange. Não sabe defender bem próprio Dux (não põe nenhuma peça no meio, tenta só mexer o Dux).
+		Fácil - Vê a posição de 70% das peças, não sabe flanquear, atacar por Testudo, nem Falange. Não sabe defender bem próprio Dux (não põe nenhuma peça no meio, tenta só mexer o Dux).
 */
