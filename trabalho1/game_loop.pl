@@ -58,6 +58,7 @@ remove_captured_pieces(Move,Player) :- checks_the_direction_of_move(Move,Directi
             nth0(2, Move, PosX), nth0(3, Move, PosY), Pos = [PosX,PosY],
             flank_attack(Pos,Direction,Player),
             phalanx_attack(Pos,Direction,Player),
+            push_and_crush_capture(Pos,Direction,Player),
             normal_capture(Pos,Player),
             check_mate(Pos).
 
@@ -102,38 +103,51 @@ phalanx_attack(Pos,Direction,Player):-add1_pos(Direction,Pos,NextPiece), nth0(0,
 
 phalanx_attack(_,_,_).
 
+%push and crush capture
+helper_push_and_crush_capture2(Pos,Direction,Player):- add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),     
+            column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_letter(OppPlayer,Piece).
+
+                                 
+helper_push_and_crush_capture(Pos,Direction,Player):- add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),     
+            column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_letter(OppPlayer,Piece), 
+            \+ helper_push_and_crush_capture2(NextPiece,Direction,Player),                                                                                             
+            set_piece(ColumnLetter,Line,' ').                                                                                            
+
+push_and_crush_capture(Pos,Direction,Player):-add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),            
+            column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),player_piece(Player,Piece),   
+            helper_push_and_crush_capture(NextPiece,Direction,Player).                                                                                                           
+
+push_and_crush_capture(_,_,_).
+
+
+
 %normal capture
 
-check_if_player_piece_or_wall(NextPiece,_):-            %if it is out of borders follows the rule
-            nth0(0,NextPiece,Column), Column>10;
-            nth0(0,NextPiece,Column), Column<1;
-            nth0(1,NextPiece,Line), Line>8;
-            nth0(1,NextPiece,Line), Line<1.
-            
+
 %if it is a player's piece follows the rule
-check_if_player_piece_or_wall(NextPiece,Player):- nth0(0,NextPiece,Column), nth0(1,NextPiece,Line), 
+check_if_player_piece(NextPiece,Player):- nth0(0,NextPiece,Column), nth0(1,NextPiece,Line), 
             get_piece(Column,Line,Piece),player_letter(Player,Piece).
 
 
 
 normal_capture(Pos,Player):- add1_pos(1,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                           %Gets position of the upper piece
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),  %checks if it's an enemy
-            Y1 is Line+1 , NextPiece2 =[Column,Y1],check_if_player_piece_or_wall(NextPiece2,Player),                                                    %checks if the position in that direction is a player's piece or a wall
+            Y1 is Line+1 , NextPiece2 =[Column,Y1],check_if_player_piece(NextPiece2,Player),                                                    %checks if the position in that direction is a player's piece or a wall
             set_piece(ColumnLetter,Line,' '),fail.                                                                                                      %if it is applies the rule, and checks others directions
 
 normal_capture(Pos,Player):-add1_pos(4,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                            %Gets position of the left piece
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),  %checks if it's an enemy
-            Y1 is Line-1, NextPiece2 =[Column,Y1],check_if_player_piece_or_wall(NextPiece2,Player),                                                     %checks if the position in that direction is a player's piece or a wall
+            Y1 is Line-1, NextPiece2 =[Column,Y1],check_if_player_piece(NextPiece2,Player),                                                     %checks if the position in that direction is a player's piece or a wall
             set_piece(ColumnLetter,Line,' '),fail.                                                                                                      %if it is applies the rule, and checks others directions
 
 normal_capture(Pos,Player):- add1_pos(2,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                           %Gets position of the right piece
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),  %checks if it's an enemy
-            X1 is Column-1 ,NextPiece2 =[X1,Line],check_if_player_piece_or_wall(NextPiece2,Player),                                                     %checks if the position in that direction is a player's piece or a wall   
+            X1 is Column-1 ,NextPiece2 =[X1,Line],check_if_player_piece(NextPiece2,Player),                                                     %checks if the position in that direction is a player's piece or a wall   
             set_piece(ColumnLetter,Line,' '),fail.                                                                                                      %if it is applies the rule, and checks others directions
 
 normal_capture(Pos,Player):- add1_pos(3,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                           %Gets position of the lower piece
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),  %checks if it's an enemy
-            X1 is Column+1,NextPiece2 =[X1,Line],check_if_player_piece_or_wall(NextPiece2,Player),                                                      %checks if the position in that direction is a player's piece or a wall
+            X1 is Column+1,NextPiece2 =[X1,Line],check_if_player_piece(NextPiece2,Player),                                                      %checks if the position in that direction is a player's piece or a wall
             set_piece(ColumnLetter,Line,' ').                                                                                                           %if it is applies the rule
             
 
