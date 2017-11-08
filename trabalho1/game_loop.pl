@@ -64,16 +64,16 @@ remove_captured_pieces(Move,Player) :- checks_the_direction_of_move(Move,Directi
 
 
 %flank rule
-helper_flank_attack(Pos,Direction,Player):- add1_pos(Direction,Pos,NextPiece),nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),           %gets the position of the next piece in that direction
+helper_flank_attack(Pos,Direction,Player,1):- add1_pos(Direction,Pos,NextPiece),nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),           %gets the position of the next piece in that direction
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),player_letter(Player,Piece).                                    %gets the piece and checks if it's player's piece, if it does follows the rule
 
-helper_flank_attack(Pos,Direction,Player):- add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                  %gets the position of the next piece in that direction
+helper_flank_attack(Pos,Direction,Player,_):- add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                  %gets the position of the next piece in that direction
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_letter(OppPlayer,Piece),       %gets the piece and checks if it's an enemy
-            helper_flank_attack(NextPiece,Direction,Player).                                                                                            %recurse it down
+            helper_flank_attack(NextPiece,Direction,Player,1).                                                                                            %recurse it down
 
 flank_attack(Pos,Direction,Player):-add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                          %gets the position of the next piece in that direction
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),        %gets the piece and checks if it's an enemy
-            helper_flank_attack(NextPiece,Direction,Player),                                                                                            %checks if it follows the flank rule
+            helper_flank_attack(NextPiece,Direction,Player,0),                                                                                            %checks if it follows the flank rule
             set_piece(ColumnLetter,Line,' ').                                                                                                           % if it does eliminates it
 
 flank_attack(_,_,_).
@@ -255,8 +255,14 @@ check_if_valid(Move, Player) :- is_own_piece(Move, Player), attempt_to_move(Move
 /*******************************/
 
 move(Move):- nth0(0, Move, ColumnLetter), nth0(1, Move, LinePieceToMove), column_to_number(ColumnLetter, ColumnPieceToMove),
-        get_piece(ColumnPieceToMove,LinePieceToMove,Piece),                  %gets the piece on a given position
+        get_piece(ColumnPieceToMove,LinePieceToMove,Piece),                 %gets the piece on a given position
         nth0(2, Move, ColumnNewPosLetter), nth0(3, Move, LineNewPos),
+        set_piece(ColumnNewPosLetter,LineNewPos,Piece),                            %moves it to the new position 
+        set_piece(ColumnLetter,LinePieceToMove,' ').   
+
+de_move(Move):-nth0(2, Move, ColumnLetter), nth0(3, Move, LinePieceToMove), column_to_number(ColumnLetter, ColumnPieceToMove),
+        get_piece(ColumnPieceToMove,LinePieceToMove,Piece),                 %gets the piece on a given position
+        nth0(0, Move, ColumnNewPosLetter), nth0(1, Move, LineNewPos),
         set_piece(ColumnNewPosLetter,LineNewPos,Piece),                            %moves it to the new position 
         set_piece(ColumnLetter,LinePieceToMove,' ').   
 

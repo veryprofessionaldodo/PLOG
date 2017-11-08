@@ -83,8 +83,8 @@ gather_moves_down(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNum
 		Dificil - Vê a posição de todas as peças, e analisa todas as regras acima.
 		Fácil - Vê a posição de 70% das peças, não sabe flanquear, atacar por Testudo, nem Falange. Não sabe defender bem próprio Dux (não põe nenhuma peça no meio, tenta só mexer o Dux).
 
-
 */
+
 
 /****************************/
  %NUMBER 1 PRIORITY               
@@ -92,14 +92,16 @@ gather_moves_down(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNum
 
 
 
-does_move_check_mate_helper(Pos,Player,Direction):-add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                                    %checks the position to the right
+does_move_check_mate_helper(Move,Player,Direction):-
+            nth0(2, Move, PosX), nth0(3, Move, PosY), Pos = [PosX,PosY],
+            add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                                    
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_dux(OppPlayer,Piece),
-	    helper_check_mate(Player,NextPiece).  %and sees if it's a dux 
+	    move(Move),helper_check_mate(Player,NextPiece),de_move(Move).  
 
-does_move_check_mate(Pos,Player):-does_move_check_mate_helper(Pos,Player,1);
-				  does_move_check_mate_helper(Pos,Player,2);
-				  does_move_check_mate_helper(Pos,Player,3);
-                                  does_move_check_mate_helper(Pos,Player,4).            
+does_move_check_mate(Move,Player):-does_move_check_mate_helper(Move,Player,1);
+				  does_move_check_mate_helper(Move,Player,2);
+				  does_move_check_mate_helper(Move,Player,3);
+                                  does_move_check_mate_helper(Move,Player,4).            
 %PIECE CAPTURES
 
 
@@ -118,7 +120,7 @@ move_X_Captured_Pieces(Move,Player,Counter):-checks_the_direction_of_move(Move,D
 
 is_move_flank_attack(Pos,Direction,Player,Counter):-add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                          %gets the position of the next piece in that direction
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_piece(OppPlayer,Piece),        %gets the piece and checks if it's an enemy
-            helper_flank_attack(NextPiece,Direction,Player),                                                                                            %checks if it follows the flank rule
+            helper_flank_attack(NextPiece,Direction,Player,0),                                                                                            %checks if it follows the flank rule
             Counter is 1.
 
 is_move_flank_attack(_,_,_,Counter):-Counter is 0.
