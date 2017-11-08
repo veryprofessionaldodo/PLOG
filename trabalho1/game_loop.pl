@@ -1,6 +1,7 @@
 :- reconsult(utils).
 :- reconsult(interface).
 :- reconsult(game_logic).
+:- use_module(library(random)).
 :- use_module(library(lists)).
 
 /****************************/
