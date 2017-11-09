@@ -6,6 +6,10 @@ isColumn(Letter) :- member(Letter, "abcdefghjABCDEFGHJ").
 
 equal(A,A).
 
+copy(L,R) :- accCp(L,R).
+accCp([],[]).
+accCp([H|T1],[H|T2]) :- accCp(T1,T2).
+
 % All valid player letters. 
 player_letter(1,'w').
 player_letter(1,'W').
