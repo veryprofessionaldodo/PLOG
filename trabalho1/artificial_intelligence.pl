@@ -18,7 +18,7 @@ gather_moves_by_row([[]|[]], ListOfMoves, RowNumber, ColumnNumber, Player, Final
 
 % Gather all pieces in a Row.
 gather_moves_by_row([Piece|Tail], ListOfMoves, RowNumber, ColumnNumber, Player, FinalList) :- (player_letter(Player, Piece), 
-			gather_moves_piece(Piece, RowNumber, ColumnNumber, ListOfMoves, TmpList)), write('NewList of Row is '), write(TmpList), NewColumn is ColumnNumber + 1,  NewColumn < 11, !,
+			gather_moves_piece(Piece, RowNumber, ColumnNumber, ListOfMoves, TmpList)), write('\nNewList of Row is '), write(TmpList), NewColumn is ColumnNumber + 1,  NewColumn < 11, !,
 			once(append(TmpList, ListOfMoves, NewList)),
 			gather_moves_by_row(Tail, NewList, RowNumber, NewColumn, Player, FinalList). 
 
@@ -28,49 +28,49 @@ gather_moves_by_row([Piece|Tail], ListOfMoves, RowNumber, ColumnNumber, Player, 
 
 % Gather all moves in a specific place.			
 gather_moves_piece(Piece, RowNumber, ColumnNumber, ListOfMoves, FinalList) :- 
-
-		((!, NewRow1 is RowNumber - 1, gather_moves_down(ListOfMoves, ColumnNumber, RowNumber, ColumnNumber, NewRow1, TmpList3));
-		(!, NewRow2 is RowNumber + 1, gather_moves_up(ListOfMoves, ColumnNumber, RowNumber, ColumnNumber, NewRow2, TmpList4));
-		(!, NewColumn1 is ColumnNumber - 1, gather_moves_left(ListOfMoves, ColumnNumber, RowNumber, NewColumn1, RowNumber, TmpList1));
-		(!, NewColumn2 is ColumnNumber + 1, gather_moves_right(ListOfMoves, ColumnNumber, RowNumber, NewColumn2, RowNumber, TmpList2))),
-		write('TmpLists'), write(TmpList1), write(TmpList2), write(TmpList3), write(TmpList4).
+		NewRow1 is RowNumber - 1, gather_moves_down(ListOfMoves, ColumnNumber, RowNumber, ColumnNumber, NewRow1, FinalList),
+		write('TmpLists'), write(FinalList).
 
 
 gather_moves_left(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :- 
-		write('Merda1'), get_piece(ColumnNumber, RowNumber, Piece), Piece == ' ', write('Merda2'),
+		get_piece(ColumnNumber, RowNumber, Piece), Piece == ' ', 
 		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)),
 		NewColumn1 is ColumnNumber - 1, NewColumn1 > 0,  
 		gather_moves_left(NewList, OriginalColumn, OriginalRow, NewColumn1, RowNumber, FinalList).
 
 % Has reached the end of column, or hit another piece.
-gather_moves_left(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber, FinalList) :- write(ListOfMoves), nl, copy(ListOfMoves, FinalList). 
+gather_moves_left(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber, FinalList) :- 
+	NewColumn1 is ColumnNumber + 1, gather_moves_right(ListOfMoves, ColumnNumber, RowNumber, NewColumn1, RowNumber, FinalList). 
 
 gather_moves_right(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :-
-    	write('Merda3'), get_piece(ColumnNumber, RowNumber, Piece), Piece == ' ', write('Merda4'),
+    	get_piece(ColumnNumber, RowNumber, Piece), Piece == ' ', 
     	NewColumn1 is ColumnNumber + 1, NewColumn1 < 11,
 		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)), 
 		gather_moves_right(NewList, OriginalColumn, OriginalRow, NewColumn1, RowNumber, FinalList).
 
 % Has reached the end of column, or hit another piece.
-gather_moves_right(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber, FinalList) :- write(ListOfMoves), nl, copy(ListOfMoves, FinalList). 
+gather_moves_right(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber, FinalList) :-
+	write('\n\nPls\n'),write(ListOfMoves), nl, copy(ListOfMoves, FinalList). 
 
 gather_moves_up(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :- 
-		write('Merda5'), get_piece(ColumnNumber, RowNumber, Piece), Piece == ' ', write('Merda6'),
+		get_piece(ColumnNumber, RowNumber, Piece), Piece == ' ', 
 		NewRow1 is RowNumber + 1, NewRow1 < 9, 
 		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)), 
 		gather_moves_up(NewList, OriginalColumn, OriginalRow, ColumnNumber, NewRow1, FinalList).
 
 % Has reached the end of row, or hit another piece.
-gather_moves_up(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber) :- write(ListOfMoves), nl, copy(ListOfMoves, FinalList). 
+gather_moves_up(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber, FinalList) :- 
+ 		NewColumn1 is ColumnNumber - 1, gather_moves_left(ListOfMoves, ColumnNumber, RowNumber, NewColumn1, RowNumber, FinalList). 
 
 gather_moves_down(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :-
-		write('Merda7'), get_piece(ColumnNumber, RowNumber, Piece), Piece == ' ', write('Merda8'),
+		get_piece(ColumnNumber, RowNumber, Piece), Piece == ' ', 
 		NewRow1 is RowNumber - 1, NewRow1 > 0,
 		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)), 
 		gather_moves_down(NewList, OriginalColumn, OriginalRow, ColumnNumber, NewRow1, FinalList).
 
 % Has reached the end of row, or hit another piece.
-gather_moves_down(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber, FinalList) :- write(ListOfMoves), nl, copy(ListOfMoves, FinalList). 
+gather_moves_down(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumber, FinalList) :- 
+	NewRow2 is RowNumber + 1, gather_moves_up(ListOfMoves, ColumnNumber, RowNumber, ColumnNumber, NewRow2, FinalList). 
 
 /* ORDEM DE PRIORIDADES 
 	1a O Dux inimigo está exposto?
