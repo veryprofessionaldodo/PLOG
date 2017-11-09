@@ -14,7 +14,7 @@ gather_moves_recursive([Row|Tail], ListOfMoves, RowNumber, Player) :- gather_mov
 		NewRow is RowNumber - 1, gather_moves_recursive(Tail, ListOfMoves, NewRow, Player).
 
 % Has reached the ending row.
-gather_moves_by_row([[]|[]], ListOfMoves, RowNumber, ColumnNumber, Player) :- write('Wat').
+gather_moves_by_row([[]|Row], ListOfMoves, RowNumber, ColumnNumber, Player) :- write('Wat').
 
 % Gather all pieces in a Row.
 gather_moves_by_row([Piece|Tail], ListOfMoves, RowNumber, ColumnNumber, Player) :- write(Tail), (player_letter(Player, Piece), 
@@ -60,7 +60,7 @@ gather_moves_up(ListOfMoves, OriginalRow, OriginalColumn, ColumnNumber, RowNumbe
 gather_moves_down(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber) :- 
 		get_piece(ColumnNumber, RowNumber, Piece), Piece = ' ', 
 		NewRow1 is RowNumber - 1, NewRow1 > 0,
-		append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList), 
+		append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList), write(NewList),
 		gather_moves_down(NewList, OriginalColumn, OriginalRow, ColumnNumber, NewRow1).
 
 % Has reached the end of row, or hit another piece.
