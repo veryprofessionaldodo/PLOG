@@ -80,3 +80,5 @@ directions_90(1,2,3).
 directions_90(4,2,3).
 directions_90(2,1,4).
 directions_90(3,1,4).
+
+cls :- write('\33\[2J').
