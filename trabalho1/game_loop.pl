@@ -1,6 +1,7 @@
 :- reconsult(utils).
 :- reconsult(interface).
 :- reconsult(game_logic).
+:- reconsult(artificial_intelligence).
 :- use_module(library(random)).
 :- use_module(library(lists)).
 
@@ -39,10 +40,10 @@ play(1) :-  read_move(1), print_board, %l?jogada jogador 1
             play(1). %chamada recursiva
 
 /* Game Loop in pvAI. */
-play(2):- print_board.
+play(2):- gather_all_moves([[]|ListOfMoves],1), write(ListOfMoves).
 
 /* Game Loop in AIvAI. */
-play(3):- print_board.
+play(3):- gather_all_moves([[]|ListOfMoves],1), write(ListOfMoves).
 
 %* Reads move for a player passed in argument. 
 read_move(X):- write('Make your move Player '), write(X), nl, read(MoveString), string_to_move(MoveString, Move), check_if_valid(Move, X), !,
