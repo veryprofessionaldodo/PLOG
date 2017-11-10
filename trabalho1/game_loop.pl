@@ -274,7 +274,7 @@ get_piece(Column,Line,Piece):- board(Board), (Column > 0, Column < 11, line_to_p
                 nth1(LineNumber, Board, X), nth1(Column, X, Piece), !).
 
 % If it's not a valid position.
-get_piece(_,_,_,Piece):- Piece = ' '.
+get_piece(_,_,_,Piece):- Piece = 'x'.
 
 % Replaces a character in a given position on the board.
 set_piece(ColumnLetter,Line,Piece):- column_to_number(ColumnLetter, Column), line_to_position(Line, LineNumber),                                   
