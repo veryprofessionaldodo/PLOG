@@ -4,21 +4,21 @@
 
 % Gather all moves for all pieces.
 gather_all_moves([ListOfMoves|FinalList], Player) :- ListOfMoves = [], write('\nThinking...\n'), board(Board), 
-		gather_moves_recursive(Board, ListOfMoves, 8, Player, FinalList), write(ListOfMoves).
+		gather_moves_recursive(Board, ListOfMoves, 8, Player, FinalList), write('Literalmente a Lista Final'), write(FinalList).
 
 % Recursive function that calls itself to see all the pieces.
 gather_moves_recursive([Row|Tail], ListOfMoves, RowNumber, Player, FinalList) :- RowNumber > 0, once(gather_moves_by_row(Row, [], 1, RowNumber,  Player, Tmp2List)), 
-		NewRow is RowNumber - 1, write('Finished recursive?'), write(Tmp2List),
-		once(append(Tmp2List, ListOfMoves, NewList)), once(gather_moves_recursive(Tail, NewList, NewRow, Player, FinalList)).
+		NewRow is RowNumber - 1, 
+		once(append(Tmp2List, ListOfMoves, NewList)), write('Finished recursive?'), write(NewList), once(gather_moves_recursive(Tail, NewList, NewRow, Player, FinalList)).
 
 % End of recursion.
-gather_moves_recursive([[]|[]], ListOfMoves, RowNumber, Player, FinalList) :- write('Antes de copiar'), copy(ListOfMoves, FinalList), nl, write('ACABOU').
+gather_moves_recursive(Ending, ListOfMoves, RowNumber, Player, FinalList) :- write('Antes de copiar'), copy(ListOfMoves, FinalList), nl, write('ACABOU').
 
 % Gather all pieces in a Row.
 gather_moves_by_row([Piece|Tail], ListOfMoves, ColumnNumber, RowNumber, Player, FinalList) :- 
 		RowNumber > 0, NewColumn is ColumnNumber + 1,  NewColumn < 12, 
 		%write('1stRow'), write(Tail), write(' Piece '), write(Piece), write('Is in Position '), write(ColumnNumber), write(' '), write(RowNumber), nl,
-		player_letter(Player, Piece), write(' checked for player\n'),
+		player_letter(Player, Piece), write(' checked for player '),
 		gather_moves_piece(Piece, ColumnNumber, RowNumber, [], TmpList), 
 		
 
@@ -26,15 +26,15 @@ gather_moves_by_row([Piece|Tail], ListOfMoves, ColumnNumber, RowNumber, Player, 
 		once(append(TmpList, ListOfMoves, NewList)),
 		write(' NewList '), write(NewList), nl,
 
-		once(gather_moves_by_row(Tail, NewList, NewColumn, RowNumber, Player, FinalList)). 
+		gather_moves_by_row(Tail, NewList, NewColumn, RowNumber, Player, FinalList). 
 
 % Gather all pieces in a Row.
 gather_moves_by_row([Piece|Tail], ListOfMoves, ColumnNumber, RowNumber, Player, FinalList) :- RowNumber > 0, NewColumn is ColumnNumber + 1, 
-		 NewColumn < 12, write('checked for enemy\n'), once(gather_moves_by_row(Tail, NewList, NewColumn, RowNumber, Player, FinalList)).
+		 NewColumn < 12, write(' checked for empty/enemy '), once(gather_moves_by_row(Tail, NewList, NewColumn, RowNumber, Player, FinalList)).
 
 % Has reached the ending of row.
 gather_moves_by_row(LastNumber, ListOfMoves, ColumnNumber, RowNumber, Player, FinalList) :-  %write('3rdRow'),  write('FinalList'), write(ListOfMoves), 
-			write('FINISHED ROW'), 
+			write('FINISHED ROW '), 
 			copy(ListOfMoves, FinalList), write(FinalList),nl.
 
 % Gather all moves in a specific place.			
