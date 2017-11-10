@@ -2,6 +2,22 @@
 /***** AI BEHAVIOUR *****/
 /************************/
 
+aI_move(Player, 1):- gather_all_moves([[]|ListOfMoves],Player),!, nonvar(ListOfMoves), length(ListOfMoves,X),X>0,
+                random_member(NL, ListOfMoves),create_move(NL, Move),
+                move(Move),cls,remove_captured_pieces(Move,Player),is_game_over.
+
+
+
+create_move(X, Move):-nth0(0,X,X1), column_to_number(Column1, X1),
+                nth0(1,X,Y1), 
+                nth0(2,X,X2), column_to_number(Column2, X2),
+                nth0(3,X,Y2),
+                Move=[Column1,Y1,Column2,Y2].
+
+
+
+
+
 % Gather all moves for all pieces.
 gather_all_moves([ListOfMoves|FinalList], Player) :- ListOfMoves = [], write('\nThinking...\n'), board(Board), 
 		gather_moves_recursive(Board, ListOfMoves, 8, Player, FinalList).

@@ -13,13 +13,13 @@ latrunculli:- cls, write('LATRUNCULLI \n \n Which type of game do you want to pl
             read(ReadMode), playMode(ReadMode).
 
 /* Starts a new game in pvp. */
-playMode(1) :-  clear_global_variables, cls,  write('Good luck to both!\n\n'), print_board, nl, print_make_move, nl, !, play(1), nl.
+playMode(1) :-  clear_global_variables, cls,  write('Good luck to both!\n\n'), print_board, nl, print_make_move, nl, !, play(1,0,0), nl.
 
 /* Starts a new game in pvAI. */
-playMode(2) :-  clear_global_variables, cls, write('Good luck!\n\n'), print_board, nl, print_make_move, nl, !, play(2), nl.
+playMode(2) :-  clear_global_variables, cls, write('Good luck!\n\n'), !, get_level_ai(Level,0), cls, print_board, nl, print_make_move, nl,play(2,Level,0), nl.
 
 /* Starts a new game in AIvAI. */
-playMode(3) :-  clear_global_variables, cls, write('Watch it all unfold before you!\n\n'), print_board, nl, print_make_move, nl, !, play(3), nl.
+playMode(3) :-  clear_global_variables, cls, write('Watch it all unfold before you!\n\n'), nl, !,get_level_ai(Level1,1), get_level_ai(Level2,2), cls, print_board,nl, play(3,Level1,Level2), nl.
 
 /* Invalid game mode. */
 
@@ -27,7 +27,11 @@ playMode(_) :-  write('Invalid game type! Try again. \n 1 - Player Versus Player
 			read(ReadMode), playMode(ReadMode).
 
 clear_global_variables :- retractall(board(_)), initial_board(StartBoard), assert(board(StartBoard)), 
-            retractall(playcounter(_)), assert(playcounter(100)).
+            retractall(playcounter(_)), assert(playcounter(101)).
+
+get_level_ai(Level,0):- write('\n AI LEVEL \n \n Which type of AI do you want to use? \n 1 - Random \n 2 - Intelligent AI \n'),read(Level).
+
+get_level_ai(Level,AiNumber):- format('\n AI LEVEL \n \n Which type of AI do you want to use for Player ~w? \n 1 - Random \n 2 - Intelligent AI \n',[AiNumber]),read(Level).
 
 
 /****************************/
@@ -35,15 +39,19 @@ clear_global_variables :- retractall(board(_)), initial_board(StartBoard), asser
 /****************************/
 
 /* Game Loop, in pvp. */
-play(1) :-  read_move(1), print_board, %l?jogada jogador 1      
-            read_move(2), print_board, %l?jogada jogador 2
-            play(1). %chamada recursiva
+play(1,0,0) :-  read_move(1), print_board, %l?jogada jogador 1      
+                read_move(2), print_board, %l?jogada jogador 2
+                play(1,0,0). %chamada recursiva
 
 /* Game Loop in pvAI. */
-play(2):- gather_all_moves([[]|ListOfMoves],1).
-
+play(2,LevelAi,0):- read_move(1), print_board,
+                    aI_move(2, LevelAi),print_board,
+                    play(2,LevelAi,0).
+ 
 /* Game Loop in AIvAI. */
-play(3):- gather_all_moves([[]|ListOfMoves],1).
+play(3,LevelAi1,LevelAi2):- aI_move(1, LevelAi1),print_board,
+                            aI_move(2, LevelAi2),print_board,
+                            play(3,LevelAi1,LevelAi2).
 
 %* Reads move for a player passed in argument. 
 read_move(X):- write('Make your move Player '), write(X), nl, read(MoveString), string_to_move(MoveString, Move), check_if_valid(Move, X), !,
@@ -226,9 +234,19 @@ check_mate(_).
 /****************************/
 %Checks if the game ended
 is_game_over:-board(Board), check_soldiers_and_Dux(Board,0,0,0,0),
-            playcounter(X), X>0 , Y is X-1, retract(playcounter(X)), assert(playcounter(Y)). %atualiza n?mero de jogadas restantes
+            playcounter(X), X>0 , Y is X-1, retract(playcounter(X)), assert(playcounter(Y)), 
+            check_possible_moves. %atualiza n?mero de jogadas restantes
 is_game_over:-cls, print_board, write('\n The game ended with a draw. \n'), break.
 
+
+check_possible_moves:-gather_all_moves([[]|ListOfMoves],1), nonvar(ListOfMoves), length(ListOfMoves,X),X>0,
+                      gather_all_moves([[]|ListOfMoves2],2), nonvar(ListOfMoves2), length(ListOfMoves2,Y),Y>0.
+
+check_possible_moves:- gather_all_moves([[]|ListOfMoves],1), nonvar(ListOfMoves), length(ListOfMoves,X),X<1,
+                       write('\n Player 1 Lost, there is possible move \n'), break.
+                       
+check_possible_moves:- gather_all_moves([[]|ListOfMoves],2), nonvar(ListOfMoves), length(ListOfMoves,X),X<1,
+                       write('\n Player 2 Lost, there is possible move \n'), break.                       
 %checks if one of the players lost
 check_soldiers_and_Dux(_,1,1,1,1).   % tudo normal continuar normalmente
 
