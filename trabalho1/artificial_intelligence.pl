@@ -109,6 +109,9 @@ gather_moves_piece(Piece, ColumnNumber, RowNumber, ListOfMoves, FinalList) :-
 gather_moves_left(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :- 
 		get_piece(ColumnNumber, RowNumber, NewPiece), 
 		NewPiece == ' ', 
+		column_to_number(OriginalColumnLetter, OriginalColumn),
+		column_to_number(ColumnNumberLetter, ColumnNumber),
+		check_piece_warfare([OriginalColumnLetter, OriginalRow, ColumnNumberLetter, RowNumber]),
 		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)),
 		NewColumn1 is ColumnNumber - 1, 
 		NewColumn1 > 0,  
@@ -124,7 +127,9 @@ gather_moves_right(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNu
     	NewPiece == ' ', 
 		NewColumn1 is ColumnNumber + 1, 
 		NewColumn1 < 12,
-		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)), 
+		column_to_number(OriginalColumnLetter, OriginalColumn),
+		column_to_number(ColumnNumberLetter, ColumnNumber),
+		check_piece_warfare([OriginalColumnLetter, OriginalRow, ColumnNumberLetter, RowNumber]),
 		gather_moves_right(NewList, OriginalColumn, OriginalRow, NewColumn1, OriginalRow, FinalList).
 
 % Has reached the end of column, or hit another piece.
@@ -136,6 +141,9 @@ gather_moves_up(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumbe
 		NewPiece == ' ', 
 		NewRow1 is RowNumber + 1, 
 		NewRow1 < 9, 
+		column_to_number(OriginalColumnLetter, OriginalColumn),
+		column_to_number(ColumnNumberLetter, ColumnNumber),
+		check_piece_warfare([OriginalColumnLetter, OriginalRow, ColumnNumberLetter, RowNumber]),
 		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)), 
 		gather_moves_up(NewList, OriginalColumn, OriginalRow, OriginalColumn, NewRow1, FinalList).
 
@@ -149,6 +157,9 @@ gather_moves_down(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNum
 		NewRow1 > 0,
 		get_piece(ColumnNumber, RowNumber, NewPiece), 
 		NewPiece == ' ', 
+		column_to_number(OriginalColumnLetter, OriginalColumn),
+		column_to_number(ColumnNumberLetter, ColumnNumber),
+		check_piece_warfare([OriginalColumnLetter, OriginalRow, ColumnNumberLetter, RowNumber]),
 		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)),
 		gather_moves_down(NewList, OriginalColumn, OriginalRow, OriginalColumn, NewRow1, FinalList).
 

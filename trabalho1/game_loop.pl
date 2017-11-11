@@ -68,9 +68,6 @@ get_level_ai(Level,AiNumber):-
         format('\n AI LEVEL \n \n Which type of AI do you want to use for Player ~w? \n 1 - Random \n 2 - Intelligent AI \n',[AiNumber]),
         read(Level).
 
-get_level_ai(Level,AiNumber):- 
-        write('\n Invalid AI mode selected! Try again.\n'),
-        get_level_ai(Level,AiNumber).
 
 
 
@@ -93,10 +90,10 @@ play(2,LevelAi,0):-
  
 /* Game Loop in AIvAI. */
 play(3,LevelAi1,LevelAi2):- 
-        sleep(2), write('Player 1 is thinking...\n'), 
+        write('Player 1 is thinking...\n'), sleep(2), 
         aI_move(1, LevelAi1), print_board,  
         write('Player 1 finished playing\n'), sleep(1),
-        sleep(2), write('Player 2 is thinking...\n'), 
+        write('Player 2 is thinking...\n'), sleep(2), 
         aI_move(2, LevelAi2),print_board,  write('Player 2 finished playing\n'), 
         sleep(1), play(3,LevelAi1,LevelAi2).
 
