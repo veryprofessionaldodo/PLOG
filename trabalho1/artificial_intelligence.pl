@@ -19,8 +19,7 @@ create_move(X, Move):-nth0(0,X,X1), column_to_number(Column1, X1),
 
 
 % Gather all moves for all pieces.
-gather_all_moves([ListOfMoves|FinalList], Player) :- ListOfMoves = [], write('\nThinking...\n'), board(Board), 
-		gather_moves_recursive(Board, ListOfMoves, 8, Player, FinalList).
+gather_all_moves([ListOfMoves|FinalList], Player) :-  board(Board), ListOfMoves = [], gather_moves_recursive(Board, ListOfMoves, 8, Player, FinalList).
 
 % Recursive function that calls itself to see all the pieces.
 gather_moves_recursive([Row|Tail], ListOfMoves, RowNumber, Player, FinalList) :- RowNumber > 0, gather_moves_by_row(Row, [], 1, RowNumber,  Player, Tmp2List), 

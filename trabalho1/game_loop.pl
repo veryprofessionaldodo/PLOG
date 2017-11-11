@@ -4,6 +4,7 @@
 :- reconsult(artificial_intelligence).
 :- use_module(library(random)).
 :- use_module(library(lists)).
+:- use_module(library(system)).
 
 /****************************/
 /*****BEGINNING OF GAME *****/
@@ -45,12 +46,12 @@ play(1,0,0) :-  read_move(1), print_board, %l?jogada jogador 1
 
 /* Game Loop in pvAI. */
 play(2,LevelAi,0):- read_move(1), print_board,
-                    aI_move(2, LevelAi),print_board,
+                    sleep(2), aI_move(2, LevelAi), print_board, write('Player 2 finished playing'), sleep(1),
                     play(2,LevelAi,0).
  
 /* Game Loop in AIvAI. */
-play(3,LevelAi1,LevelAi2):- aI_move(1, LevelAi1),print_board,
-                            aI_move(2, LevelAi2),print_board,
+play(3,LevelAi1,LevelAi2):- sleep(2), write('Player 1 is thinking...\n'), aI_move(1, LevelAi1), print_board,  write('Player 1 finished playing'), sleep(1),
+                            sleep(2), write('Player 2 is thinking...\n'), aI_move(2, LevelAi2),print_board,  write('Player 2 finished playing'), sleep(1), 
                             play(3,LevelAi1,LevelAi2).
 
 %* Reads move for a player passed in argument. 
