@@ -73,7 +73,7 @@ get_level_ai(Level,0):-
         write('                                               AI LEVEL        \n \n'),
         write('                            Which type of AI do you want to play against?  \n'),
         write('                                            1 - Random \n'),
-        write('                                        2 - Intelligent AI \n'),
+        write('                                        2 - Intelligent AI \n\n'),
         write('                                               '),
         read(Level).
 
@@ -97,44 +97,46 @@ play(1,0,0) :-
         cls,nl, nl,  
         write('                                             LATRUNCULLI  \n \n \n'),
         write('                                                 PvP   \n \n'),
-        format('                                           Make your move, Player ~w   \n \n',[Player]),
         print_board,
         read_move(1),  %l?jogada jogador 1      
         cls,nl, nl,  
         write('                                             LATRUNCULLI  \n \n \n'),
         write('                                                 PvP   \n \n'),
-        format('                                           Make your move, Player ~w   \n \n',[Player]),
         print_board,
         read_move(2), %l?jogada jogador 2
         play(1,0,0). %chamada recursiva
 
 /* Game Loop in pvAI. */
 play(2,LevelAi,0):- 
-        cls,nl, nl, 
-        read_move(1), print_board,
-        sleep(2), aI_move(2, LevelAi), print_board, 
-        write('Player 2 finished playing\n'), sleep(1),
+        cls,nl, nl,  
+        write('                                             LATRUNCULLI  \n \n \n'),
+        write('                                                 PvAI   \n \n'),
+        print_board, read_move(1), 
+        aI_move(2, LevelAi),  sleep(2),
         play(2,LevelAi,0).
  
 /* Game Loop in AIvAI. */
 play(3,LevelAi1,LevelAi2):- 
         cls,nl, nl, 
-        aI_move(1, LevelAi1), sleep(2), cls,
-        aI_move(2, LevelAi2), sleep(2), cls,
-        sleep(1), play(3,LevelAi1,LevelAi2).
+        aI_move(1, LevelAi1), sleep(2), 
+        aI_move(2, LevelAi2), sleep(2), 
+        play(3,LevelAi1,LevelAi2).
 
 %* Reads move for a player passed in argument. 
-read_move(X):- write('Make your move Player '), 
-        write(X), nl, 
+read_move(Player):- 
+        nl, nl,
+        format('                                        Make your move, Player ~w   \n \n',[Player]),
+        write('                                                '),
         read(MoveString), 
         string_to_move(MoveString, Move), 
-        check_if_valid(Move, X), !,
+        check_if_valid(Move, Player), !,
 	    move(Move),
-        remove_captured_pieces(Move,X),
+        remove_captured_pieces(Move,Player),
         is_game_over.
 
 read_move(Y):- 
-        write('Invalid move! Do a new valid move.\n'), 
+        write('\n\n                                        '),
+        write('Invalid play!\n\n'), 
         read_move(Y).
 
 

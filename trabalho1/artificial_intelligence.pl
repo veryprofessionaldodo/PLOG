@@ -3,10 +3,10 @@
 /************************/
 
 aI_move(Player, 1):- 
- 		write('                                             LATRUNCULLI \n \n \n'),
-        write('                                 Watch it all unfold before you!\n\n'), 
-        write('                                      Player 1 is thinking...\n'), 
-        
+		cls, nl, nl,
+ 		write('                                           LATRUNCULLI \n \n \n'),
+        format('                                        Player ~w is thinking...\n', [Player]), 
+
         print_board, nl, nl, sleep(2), 
 
 		gather_all_moves([[]|ListOfMoves],Player),!,
@@ -17,22 +17,24 @@ aI_move(Player, 1):-
         create_move(NL, Move),
         move(Move),
         
-        cls,
-        write('                                             LATRUNCULLI              \n \n \n'),
+        
+        cls, nl, nl,
+        write('                                           LATRUNCULLI              \n \n \n'),
         write('                                   Watch it all unfold before you!    \n\n'), 
         format('                                        Player ~w is thinking...\n', [Player]), 
-        print_board, nl, nl, sleep(2), 
-        format('                                        Player ~w did move :\n', [Player]),
-        write( '                                           '), write(Move), write('.'),
+        print_board, nl, nl,  
+        format('                                           Player ~w did move :\n', [Player]),
+        write( '                                           '), write(Move), write('.'), sleep(2),
 
         remove_captured_pieces(Move,Player),
         is_game_over.
 
 aI_move(Player, 2):- 
-		write('                                             LATRUNCULLI \n \n \n'),
+		cls, nl, nl,
+		write('                                           LATRUNCULLI \n \n \n'),
         write('                                 Watch it all unfold before you!\n\n'), 
-        format('                                      Player ~w is thinking...\n', [Player]), sleep(2), 
-        print_board, nl, nl,
+        format('                                      Player ~w is thinking...\n', [Player]), 
+        print_board, nl, nl, sleep(2), 
 
 		gather_all_moves([[]|ListOfMoves],Player),!,
 		nonvar(ListOfMoves), 
@@ -41,15 +43,15 @@ aI_move(Player, 2):-
         choose_best_move(ListOfMoves, Player, Move),
         move(Move),
 
-		cls,
-		write('                                             LATRUNCULLI \n \n \n'),
-        write('                                 Watch it all unfold before you!\n\n'), 
-        format('                                      Player ~w is thinking...\n', [Player]), sleep(2), 
-        print_board, nl, nl,
-        format('                                        Player ~w did move :\n', [Player]),
-        write( '                                           '), write(Move), write('.'),
-
-        remove_captured_pieces(Move,Player),
+        cls, nl, nl,
+        write('                                           LATRUNCULLI              \n \n \n'),
+        write('                                   Watch it all unfold before you!    \n\n'), 
+        format('                                        Player ~w is thinking...\n', [Player]), 
+        print_board, nl, nl,  
+        format('                                         Player ~w did move :\n', [Player]),
+        write( '                                            '), write(Move), write('.\n'),
+		write('                                        '),
+        remove_captured_pieces(Move,Player),  sleep(2),
         is_game_over.
 
 create_move(X, Move):-
