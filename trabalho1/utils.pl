@@ -48,8 +48,16 @@ column_to_number('J',10).
 
 % Split Array into Args 
 string_to_move(StringA-StringB, ListOfMove):-
-	name(StringA, [ColumnASCII1,RowASCII1]), name(StringB,[ColumnASCII2,RowASCII2]), isColumn(ColumnASCII1), isColumn(ColumnASCII2), name(Row1, [RowASCII1]), name(Row2, [RowASCII2]), 
-	name(Column1, [ColumnASCII1]), name(Column2, [ColumnASCII2]), is_row(Row1), is_row(Row2),
+	name(StringA, [ColumnASCII1,RowASCII1]), 
+	name(StringB,[ColumnASCII2,RowASCII2]), 
+	isColumn(ColumnASCII1), 
+	isColumn(ColumnASCII2), 
+	name(Row1, [RowASCII1]), 
+	name(Row2, [RowASCII2]), 
+	name(Column1, [ColumnASCII1]), 
+	name(Column2, [ColumnASCII2]), 
+	is_row(Row1), 
+	is_row(Row2),
 	ListOfMove = [Column1,Row1,Column2,Row2].
 
 
@@ -65,20 +73,81 @@ line_to_position(8,1).
 
 % Checks the direction of a moving piece 
 % 1 is up, 2 is left, 3 is right , 4 is down
-checks_the_direction_of_move(Move,Direction) :- nth0(0, Move, ColumnLetter), nth0(1, Move, Line), nth0(2, Move, ColumnLetter1), nth0(3, Move, Line1),
-        line_to_position(Line, Y),line_to_position(Line1, Y1),column_to_number(ColumnLetter, X), column_to_number(ColumnLetter1, X1),
+checks_the_direction_of_move(Move,Direction) :- 
+		nth0(0, Move, ColumnLetter), 
+		nth0(1, Move, Line), 
+		nth0(2, Move, ColumnLetter1), 
+		nth0(3, Move, Line1),
+        line_to_position(Line, Y),
+        line_to_position(Line1, Y1),
+        column_to_number(ColumnLetter, X),
+        column_to_number(ColumnLetter1, X1),
         checks_the_direction([X,Y,X1,Y1],Direction).
         
-checks_the_direction(Move,Direction) :- nth0(0, Move, X), nth0(1, Move, Y), nth0(2, Move, X1), nth0(3, Move, Y1), X-X1 >0,Y=Y1,Direction is 2.
-checks_the_direction(Move,Direction) :- nth0(0, Move, X), nth0(1, Move, Y), nth0(2, Move, X1), nth0(3, Move, Y1), X-X1 <0,Y=Y1,Direction is 3.
-checks_the_direction(Move,Direction) :- nth0(0, Move, X), nth0(1, Move, Y), nth0(2, Move, X1), nth0(3, Move, Y1), Y-Y1 >0,X=X1,Direction is 1.
-checks_the_direction(Move,Direction) :- nth0(0, Move, X), nth0(1, Move, Y), nth0(2, Move, X1), nth0(3, Move, Y1), Y-Y1 <0,X=X1,Direction is 4.
+checks_the_direction(Move,Direction) :- 
+		nth0(0, Move, X), 
+		nth0(1, Move, Y), 
+		nth0(2, Move, X1), 
+		nth0(3, Move, Y1), 
+		X-X1 >0,
+		Y=Y1,
+		Direction is 2.
+
+checks_the_direction(Move,Direction) :- 
+		nth0(0, Move, X), 
+		nth0(1, Move, Y), 
+		nth0(2, Move, X1), 
+		nth0(3, Move, Y1), 
+		X-X1 <0, 
+		Y=Y1,
+		Direction is 3.
+
+checks_the_direction(Move,Direction) :- 
+		nth0(0, Move, X), 
+		nth0(1, Move, Y), 
+		nth0(2, Move, X1),
+		nth0(3, Move, Y1), 
+		Y-Y1 >0,
+		X=X1,
+		Direction is 1.
+checks_the_direction(Move,Direction) :- 
+		nth0(0, Move, X), 
+		nth0(1, Move, Y), 
+		nth0(2, Move, X1), 
+		nth0(3, Move, Y1), 
+		Y-Y1 <0,
+		X=X1,
+		Direction is 4.
 
 %adds 1 position given a direction
-add1_pos(1,Pos,NextPiece):-nth0(0, Pos, X), nth0(1, Pos, Y), Y1 is Y+1 , is_row(Y1),NextPiece =[X,Y1].
-add1_pos(4,Pos,NextPiece):-nth0(0, Pos, X), nth0(1, Pos, Y), Y1 is Y-1 , is_row(Y1),NextPiece =[X,Y1].
-add1_pos(2,Pos,NextPiece):-nth0(0, Pos, X), nth0(1, Pos, Y), column_to_number(X,X1), X2 is X1-1, column_to_number(X3,X2) ,NextPiece =[X3,Y].
-add1_pos(3,Pos,NextPiece):-nth0(0, Pos, X), nth0(1, Pos, Y), column_to_number(X,X1), X2 is X1+1, column_to_number(X3,X2) ,NextPiece =[X3,Y].
+add1_pos(1,Pos,NextPiece):-
+		nth0(0, Pos, X), 
+		nth0(1, Pos, Y),
+		Y1 is Y+1 , 
+		is_row(Y1),
+		NextPiece =[X,Y1].
+
+add1_pos(4,Pos,NextPiece):-
+		nth0(0, Pos, X), 
+		nth0(1, Pos, Y), 
+		Y1 is Y-1 , 
+		is_row(Y1),
+		NextPiece =[X,Y1].
+
+add1_pos(2,Pos,NextPiece):-
+		nth0(0, Pos, X), 
+		nth0(1, Pos, Y), 
+		column_to_number(X,X1), 
+		X2 is X1-1, 
+		column_to_number(X3,X2),
+		NextPiece =[X3,Y].
+add1_pos(3,Pos,NextPiece):-
+		nth0(0, Pos, X), 
+		nth0(1, Pos, Y), 
+		column_to_number(X,X1),
+		X2 is X1+1, 
+		column_to_number(X3,X2) ,
+		NextPiece =[X3,Y].
 
 %given a direction X, get perpendicular directions
 directions_90(1,2,3).
