@@ -21,13 +21,13 @@ choose_best_move_helper([], _, NL,CurrentBestCapturedPieces, NumberofCaptures, F
                 FoundAttackDux\= [],NL=FoundAttackDux.
                  
 choose_best_move_helper([Move|T], Player, NL,CurrentBestCapturedPieces, NumberofCaptures, FoundAttackDux):- 
-                %create_move(Move, H),does_move_check_mate(H,Player),NL=H;
+                create_move(Move, H),does_move_check_mate(H,Player),NL=H;
                 create_move(Move, H),move_X_Captured_Pieces(H,Player,Counter), Counter>NumberofCaptures, choose_best_move_helper(T, Player, NL,H, Counter, FoundAttackDux);
                 create_move(Move, H),NumberofCaptures<1,nth0(2,H,ColumnLetter), nth0(3,H,Line), Pos=[ColumnLetter,Line],does_move_attack_dux(Pos,Player),choose_best_move_helper(T, Player, NL,CurrentBestCapturedPieces, NumberofCaptures, H);
                 choose_best_move_helper(T, Player, NL,CurrentBestCapturedPieces, NumberofCaptures, FoundAttackDux).
                 
-choose_best_move(ListOfMoves, Player, NL):-choose_best_move_helper(ListOfMoves, Player, NL,[], 0, []).
-                                           %random_member(NL, ListOfMoves).
+choose_best_move(ListOfMoves, Player, NL):-choose_best_move_helper(ListOfMoves, Player, NL,[], 0, []);
+                                           random_member(Move, ListOfMoves),create_move(Move, NL).
 
 % Gather all moves for all pieces.
 gather_all_moves([ListOfMoves|FinalList], Player) :-  board(Board), ListOfMoves = [], gather_moves_recursive(Board, ListOfMoves, 8, Player, FinalList).
@@ -136,7 +136,7 @@ does_move_check_mate_helper(Move,Player,Direction):-
             nth0(2, Move, PosX), nth0(3, Move, PosY), Pos = [PosX,PosY],
             add1_pos(Direction,Pos,NextPiece), nth0(0,NextPiece,ColumnLetter), nth0(1,NextPiece,Line),                                    
             column_to_number(ColumnLetter, Column),get_piece(Column,Line,Piece),opposing_player(Player,OppPlayer),player_dux(OppPlayer,Piece),
-	    move(Move),(helper_check_mate(Player,NextPiece),de_move(Move);de_move(Move)).  
+	    move(Move),(helper_check_mate(Player,NextPiece),de_move(Move);de_move(Move),fail).  
 
 does_move_check_mate(Move,Player):-does_move_check_mate_helper(Move,Player,1);
 				  does_move_check_mate_helper(Move,Player,2);
