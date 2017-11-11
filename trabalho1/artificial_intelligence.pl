@@ -3,28 +3,53 @@
 /************************/
 
 aI_move(Player, 1):- 
+ 		write('                                             LATRUNCULLI \n \n \n'),
+        write('                                 Watch it all unfold before you!\n\n'), 
+        write('                                      Player 1 is thinking...\n'), 
+        
+        print_board, nl, nl, sleep(2), 
+
 		gather_all_moves([[]|ListOfMoves],Player),!,
 		nonvar(ListOfMoves),
 		length(ListOfMoves,X),
 		X>0,
-        random_member(NL, ListOfMoves),
+		random_member(NL, ListOfMoves),
         create_move(NL, Move),
         move(Move),
+        
         cls,
+        write('                                             LATRUNCULLI              \n \n \n'),
+        write('                                   Watch it all unfold before you!    \n\n'), 
+        format('                                        Player ~w is thinking...\n', [Player]), 
+        print_board, nl, nl, sleep(2), 
+        format('                                        Player ~w did move :\n', [Player]),
+        write( '                                           '), write(Move), write('.'),
+
         remove_captured_pieces(Move,Player),
         is_game_over.
 
 aI_move(Player, 2):- 
+		write('                                             LATRUNCULLI \n \n \n'),
+        write('                                 Watch it all unfold before you!\n\n'), 
+        format('                                      Player ~w is thinking...\n', [Player]), sleep(2), 
+        print_board, nl, nl,
+
 		gather_all_moves([[]|ListOfMoves],Player),!,
 		nonvar(ListOfMoves), 
 		length(ListOfMoves,X),
 		X>0,
         choose_best_move(ListOfMoves, Player, Move),
         move(Move),
-        cls,
+
+		cls,
+		write('                                             LATRUNCULLI \n \n \n'),
+        write('                                 Watch it all unfold before you!\n\n'), 
+        format('                                      Player ~w is thinking...\n', [Player]), sleep(2), 
+        print_board, nl, nl,
+        format('                                        Player ~w did move :\n', [Player]),
+        write( '                                           '), write(Move), write('.'),
+
         remove_captured_pieces(Move,Player),
-        write(Move),
-        write(Player),
         is_game_over.
 
 create_move(X, Move):-
@@ -58,7 +83,8 @@ choose_best_move_helper([Move|T], Player, NL,CurrentBestCapturedPieces, Numberof
         choose_best_move_helper(T, Player, NL,CurrentBestCapturedPieces, NumberofCaptures, FoundAttackDux).
                 
 choose_best_move(ListOfMoves, Player, NL):-
-		choose_best_move_helper(ListOfMoves, Player, NL,[], 0, []);
+		random_permutation(ListOfMoves, NewRandomList),
+		choose_best_move_helper(NewRandomList, Player, NL,[], 0, []);
         random_member(Move, ListOfMoves),
         create_move(Move, NL).
 
@@ -196,8 +222,6 @@ gather_moves_down(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNum
 /****************************/
  %NUMBER 1 PRIORITY               
 /***************************/
-
-
 
 does_move_check_mate_helper(Move,Player,Direction):-
         nth0(2, Move, PosX), 

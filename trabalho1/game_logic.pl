@@ -5,6 +5,7 @@ attempt_to_move(Move) :-
 		is_vertical_or_horizontal(Move), !, 
 		check_piece_warfare(Move).
 
+
 % Check if is horizontal or vertical move. 
 is_vertical_or_horizontal(Move) :- 
 		vertical(Move) ; 

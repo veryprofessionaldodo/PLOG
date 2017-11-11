@@ -11,8 +11,13 @@
 /****************************/
 
 latrunculli:- 
-        cls, 
-        write('LATRUNCULLI \n \n Which type of game do you want to play? \n 1 - Player Versus Player \n 2 - Player Versus AI \n 3 - AI Versus AI\n'),
+        cls, nl, nl,
+        write('                                             LATRUNCULLI \n \n \n'),
+        write('                               Which type of game do you want to play? \n'),
+        write('                                    1 - Player Versus Player \n'),
+        write('                                      2 - Player Versus AI \n'),
+        write('                                        3 - AI Versus AI \n\n'),
+        write('                                               '),
         read(ReadMode), 
         playMode(ReadMode).
 
@@ -21,7 +26,6 @@ playMode(1) :-
         clear_global_variables, 
         cls,  
         write('Good luck to both!\n\n'), 
-        print_board, nl, 
         print_make_move, nl, !, 
         play(1,0,0), nl.
 
@@ -31,7 +35,6 @@ playMode(2) :-
         cls, 
         write('Good luck!\n\n'), !, 
         get_level_ai(Level,0), 
-        cls, print_board, nl, 
         print_make_move, nl, 
         play(2,Level,0), nl.
 
@@ -39,17 +42,21 @@ playMode(2) :-
 playMode(3) :-  
         clear_global_variables, 
         cls, 
-        write('Watch it all unfold before you!\n\n'), nl, !,
         get_level_ai(Level1,1), 
         get_level_ai(Level2,2), 
-        cls, 
         print_board,nl, 
         play(3,Level1,Level2), nl.
 
 /* Invalid game mode. */
 
 playMode(_) :-  
-        write('Invalid game type! Try again. \n 1 - Player Versus Player \n 2 - Player Versus AI \n 3 - AI Versus AI \n'),
+        cls, nl, nl,
+        write('                                             LATRUNCULLI     \n \n \n'),
+        write('                                   Invalid game type! Try again.  \n\n'),
+        write('                                     1 - Player Versus Player  \n'),
+        write('                                       2 - Player Versus AI   \n'),
+        write('                                        3 - AI Versus AI      \n\n'),
+        write('                                               '),
 		read(ReadMode), 
         playMode(ReadMode).
 
@@ -61,14 +68,24 @@ clear_global_variables :-
         assert(playcounter(101)).
 
 get_level_ai(Level,0):- 
-        write('\n AI LEVEL \n \n Which type of AI do you want to use? \n 1 - Random \n 2 - Intelligent AI \n'),
+        cls, nl, nl,
+        write('                                             LATRUNCULLI  \n \n \n'),
+        write('                                               AI LEVEL        \n \n'),
+        write('                            Which type of AI do you want to play against?  \n'),
+        write('                                            1 - Random \n'),
+        write('                                        2 - Intelligent AI \n'),
+        write('                                               '),
         read(Level).
 
 get_level_ai(Level,AiNumber):- 
-        format('\n AI LEVEL \n \n Which type of AI do you want to use for Player ~w? \n 1 - Random \n 2 - Intelligent AI \n',[AiNumber]),
+        cls, nl, nl,
+        write('                                             LATRUNCULLI  \n \n \n'),
+        write('                                               AI LEVEL   \n \n'),
+        format('                         Which type of AI do you want to use for Player ~w?    \n',[AiNumber]),
+        write('                                            1 - Random \n'),
+        write('                                        2 - Intelligent AI \n\n'),
+        write('                                               '),
         read(Level).
-
-
 
 
 /****************************/
@@ -77,12 +94,23 @@ get_level_ai(Level,AiNumber):-
 
 /* Game Loop, in pvp. */
 play(1,0,0) :-  
-        read_move(1), print_board, %l?jogada jogador 1      
-        read_move(2), print_board, %l?jogada jogador 2
+        cls,nl, nl,  
+        write('                                             LATRUNCULLI  \n \n \n'),
+        write('                                                 PvP   \n \n'),
+        format('                                           Make your move, Player ~w   \n \n',[Player]),
+        print_board,
+        read_move(1),  %l?jogada jogador 1      
+        cls,nl, nl,  
+        write('                                             LATRUNCULLI  \n \n \n'),
+        write('                                                 PvP   \n \n'),
+        format('                                           Make your move, Player ~w   \n \n',[Player]),
+        print_board,
+        read_move(2), %l?jogada jogador 2
         play(1,0,0). %chamada recursiva
 
 /* Game Loop in pvAI. */
 play(2,LevelAi,0):- 
+        cls,nl, nl, 
         read_move(1), print_board,
         sleep(2), aI_move(2, LevelAi), print_board, 
         write('Player 2 finished playing\n'), sleep(1),
@@ -90,11 +118,9 @@ play(2,LevelAi,0):-
  
 /* Game Loop in AIvAI. */
 play(3,LevelAi1,LevelAi2):- 
-        write('Player 1 is thinking...\n'), sleep(2), 
-        aI_move(1, LevelAi1), print_board,  
-        write('Player 1 finished playing\n'), sleep(1),
-        write('Player 2 is thinking...\n'), sleep(2), 
-        aI_move(2, LevelAi2),print_board,  write('Player 2 finished playing\n'), 
+        cls,nl, nl, 
+        aI_move(1, LevelAi1), sleep(2), cls,
+        aI_move(2, LevelAi2), sleep(2), cls,
         sleep(1), play(3,LevelAi1,LevelAi2).
 
 %* Reads move for a player passed in argument. 
@@ -104,7 +130,6 @@ read_move(X):- write('Make your move Player '),
         string_to_move(MoveString, Move), 
         check_if_valid(Move, X), !,
 	    move(Move),
-        cls,
         remove_captured_pieces(Move,X),
         is_game_over.
 
