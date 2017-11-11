@@ -7,8 +7,8 @@ aI_move(Player, 1):- gather_all_moves([[]|ListOfMoves],Player),!, nonvar(ListOfM
                 move(Move),cls,remove_captured_pieces(Move,Player),is_game_over.
 
 aI_move(Player, 2):- gather_all_moves([[]|ListOfMoves],Player),!, nonvar(ListOfMoves), length(ListOfMoves,X),X>0,
-                choose_best_move(ListOfMoves, Player, NL),write(NL),create_move(NL, Move), write(Move),
-                move(Move),cls,remove_captured_pieces(Move,Player),is_game_over.
+                choose_best_move(ListOfMoves, Player, Move),
+                move(Move),cls,remove_captured_pieces(Move,Player),write(Move),write(Player),is_game_over.
 
 create_move(X, Move):-nth0(0,X,X1), column_to_number(Column1, X1),
                 nth0(1,X,Y1), 
@@ -20,10 +20,10 @@ choose_best_move_helper([], _, NL,CurrentBestCapturedPieces, NumberofCaptures, F
                 NumberofCaptures>0, NL=CurrentBestCapturedPieces;
                 FoundAttackDux\= [],NL=FoundAttackDux.
                  
-choose_best_move_helper([H|T], Player, NL,CurrentBestCapturedPieces, NumberofCaptures, FoundAttackDux):- 
-                does_move_check_mate(H,Player),NL=H;
-                move_X_Captured_Pieces(H,Player,Counter), Counter>NumberofCaptures, choose_best_move_helper(T, Player, NL,H, Counter, FoundAttackDux);
-                nth0(2,H,ColumnLetter), nth0(3,H,Line), Pos=[ColumnLetter,Line],does_move_attack_dux(Pos,Player),choose_best_move_helper(T, Player, NL,CurrentBestCapturedPieces, NumberofCaptures, H);
+choose_best_move_helper([Move|T], Player, NL,CurrentBestCapturedPieces, NumberofCaptures, FoundAttackDux):- 
+                create_move(Move, H),does_move_check_mate(H,Player),NL=H;
+                create_move(Move, H),move_X_Captured_Pieces(H,Player,Counter), Counter>NumberofCaptures, choose_best_move_helper(T, Player, NL,H, Counter, FoundAttackDux);
+                create_move(Move, H),NumberofCaptures<1,nth0(2,H,ColumnLetter), nth0(3,H,Line), Pos=[ColumnLetter,Line],does_move_attack_dux(Pos,Player),choose_best_move_helper(T, Player, NL,CurrentBestCapturedPieces, NumberofCaptures, H);
                 choose_best_move_helper(T, Player, NL,CurrentBestCapturedPieces, NumberofCaptures, FoundAttackDux).
                 
 choose_best_move(ListOfMoves, Player, NL):-choose_best_move_helper(ListOfMoves, Player, NL,[], 0, []).
