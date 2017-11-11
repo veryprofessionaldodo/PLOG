@@ -417,7 +417,7 @@ helper_check_mate(Player,DuxPos):-
         column_to_number(ColumnLetterDown, ColumnDown), 
         Y2 is LineDown-1 , 
         NextPieceDown =[ColumnDown,Y2],       %checks the bottom position
-        heck_mate_check_piece_or_wall(Player,NextPieceDown,DuxPos),                                                                                                        %and checks if it's a piece or wall
+        check_mate_check_piece_or_wall(Player,NextPieceDown,DuxPos),                                                                                                        %and checks if it's a piece or wall
         nth0(0,DuxPos,ColumnLetterLeft), 
         nth0(1,DuxPos,LineLeft),  
         column_to_number(ColumnLetterLeft, ColumnLeft), X1 is ColumnLeft-1 ,NextPieceLeft =[X1,LineLeft],        %checks the position to the left
