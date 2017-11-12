@@ -3,6 +3,9 @@
 /* INTERFACE */
 :- dynamic(board/1).
 
+/**
+*Game initial BOARD
+*/
 initial_board( [
 	   ['w','w','w','w','w','w','w','w','w','w','8'],
 	   [' ',' ',' ',' ','W',' ',' ',' ',' ',' ','7'],

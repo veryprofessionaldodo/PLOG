@@ -161,7 +161,7 @@ read_move(Player):-
         check_if_valid(Move, Player), !,
 	move(Move),
         remove_captured_pieces(Move,Player),
-        is_game_over.
+        is_game_over(Player).
 
 /**
 * if the move is invalid, error message and trys to read it again

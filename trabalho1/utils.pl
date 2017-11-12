@@ -6,12 +6,15 @@ isColumn(Letter) :- member(Letter, "abcdefghjABCDEFGHJ").
 
 equal(A,A).
 
-copy([],R).
+copy([],_).
 copy(L,R) :- accCp(L,R).
+
 accCp([],[]).
 accCp([H|T1],[H|T2]) :- accCp(T1,T2).
 
-% All valid player letters. 
+/** 
+*All valid player letters.
+*/ 
 player_letter(1,'w').
 player_letter(1,'W').
 player_letter(2,'b').
@@ -24,7 +27,10 @@ opposing_player(1,2).
 opposing_player(2,1).   
 
 
-% Converts Column Letter to Number 
+/**
+*Converts Column Letter to Number 
+*/
+
 column_to_number('a',1).
 column_to_number('A',1).
 column_to_number('b',2).
@@ -46,7 +52,9 @@ column_to_number('I',9).
 column_to_number('j',10).
 column_to_number('J',10).
 
-% Split Array into Args 
+/**
+*Split Array into Args
+*/ 
 string_to_move(StringA-StringB, ListOfMove):-
 	name(StringA, [ColumnASCII1,RowASCII1]), 
 	name(StringB,[ColumnASCII2,RowASCII2]), 
@@ -61,7 +69,9 @@ string_to_move(StringA-StringB, ListOfMove):-
 	ListOfMove = [Column1,Row1,Column2,Row2].
 
 
-% Line Number to position in Board array. 
+/**
+*Line Number to position in Board array. 
+*/
 line_to_position(1,8).
 line_to_position(2,7).
 line_to_position(3,6).
@@ -71,13 +81,15 @@ line_to_position(6,3).
 line_to_position(7,2).
 line_to_position(8,1).
 
-% Checks the direction of a moving piece 
-% 1 is up, 2 is left, 3 is right , 4 is down
+/** 
+*Checks the direction of a moving piece 
+*1 is up, 2 is left, 3 is right , 4 is down
+*/
 checks_the_direction_of_move(Move,Direction) :- 
-		nth0(0, Move, ColumnLetter), 
-		nth0(1, Move, Line), 
-		nth0(2, Move, ColumnLetter1), 
-		nth0(3, Move, Line1),
+	nth0(0, Move, ColumnLetter), 
+	nth0(1, Move, Line), 
+	nth0(2, Move, ColumnLetter1), 
+	nth0(3, Move, Line1),
         line_to_position(Line, Y),
         line_to_position(Line1, Y1),
         column_to_number(ColumnLetter, X),
@@ -110,6 +122,7 @@ checks_the_direction(Move,Direction) :-
 		Y-Y1 >0,
 		X=X1,
 		Direction is 1.
+
 checks_the_direction(Move,Direction) :- 
 		nth0(0, Move, X), 
 		nth0(1, Move, Y), 
@@ -119,7 +132,9 @@ checks_the_direction(Move,Direction) :-
 		X=X1,
 		Direction is 4.
 
-%adds 1 position given a direction
+/**
+*adds 1 position given a direction
+*/
 add1_pos(1,Pos,NextPiece):-
 		nth0(0, Pos, X), 
 		nth0(1, Pos, Y),
@@ -149,10 +164,27 @@ add1_pos(3,Pos,NextPiece):-
 		column_to_number(X3,X2) ,
 		NextPiece =[X3,Y].
 
-%given a direction X, get perpendicular directions
+/**
+*given a direction X, get perpendicular directions
+*/
 directions_90(1,2,3).
 directions_90(4,2,3).
 directions_90(2,1,4).
 directions_90(3,1,4).
 
+/**
+* Converts columns number of a move to a letter
+*/
+create_move(X, Move):-
+        nth0(0,X,X1), 
+        column_to_number(Column1, X1),
+        nth0(1,X,Y1), 
+        nth0(2,X,X2),
+        column_to_number(Column2, X2),
+        nth0(3,X,Y2),
+        Move=[Column1,Y1,Column2,Y2].
+
+/**
+*clear the console, doesn't work on eclipse
+*/
 cls :- write('\33\[2J').
