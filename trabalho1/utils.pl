@@ -5,6 +5,7 @@ is_row(Number) :- Number > 0, Number < 9.
 isColumn(Letter) :- member(Letter, "abcdefghjABCDEFGHJ").
 
 equal(A,A).
+different(A,B) :- A\==B.
 
 copy([],_).
 copy(L,R) :- accCp(L,R).

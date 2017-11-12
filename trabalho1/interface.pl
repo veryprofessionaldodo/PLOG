@@ -3,9 +3,6 @@
 /* INTERFACE */
 :- dynamic(board/1).
 
-/**
-*Game initial BOARD
-*/
 initial_board( [
 	   ['w','w','w','w','w','w','w','w','w','w','8'],
 	   [' ',' ',' ',' ','W',' ',' ',' ',' ',' ','7'],
@@ -13,9 +10,9 @@ initial_board( [
 	   [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','5'],
 	   [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','4'],
 	   [' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','3'],
-	   [' ',' ',' ',' ',' ','B',' ',' ',' ',' ','2'],
+	   [' ','w','b',' ','w','B',' ',' ',' ',' ','2'],
 	   ['b','b','b','b','b','b','b','b','b','b','1'],
-	   ['a','b','c','d','e','f','g','h','i','j']
+	   ['_a_','_b_','_c_','_d_','_e_','_f_','_g_','_h_','_i_','_j_']
 
 	   ]).
 
@@ -25,7 +22,13 @@ print_line([]) :- print_newline.
 % If line has content, continue reading until the end. 
 print_line( [Head|Tail]) :- print_character(Head), print_line(Tail).
 
+print_final_line([]) :- print_newline.
+
+print_final_line( [Head|Tail]) :- print_final_character(Head), print_final_line(Tail).
+
 % If board has reached the end, print the final separating line. 
+print_board([Last|[]]) :-  print_top, write('                 '), print_final_line(Last).
+
 print_board([]).
 
 % While board has content, continue to print lines. 
@@ -38,6 +41,8 @@ print_make_move:- write('Write your move like "b3-b7.", b3 being the piece posit
 
 % Print specific character. 
 print_character(X) :- write('|  '), write(X), write('  ').
+
+print_final_character(X) :- write('|_'), write(X), write('_').
 
 % Print separating line. 
 print_top :- write('                 -------------------------------------------------------------\n').

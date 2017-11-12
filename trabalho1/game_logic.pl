@@ -81,79 +81,105 @@ is_own_piece(Move, Player) :-
         get_piece(Column, Line, Piece), 
         player_letter(Player, Piece).
 
-%Checks whether piece is in warfare with enemy or not.
+% Checks whether piece is in warfare with enemy or not.
 check_piece_warfare(Move) :- 
-	nth0(0, Move, ColumnLetter), 
-	nth0(1, Move, Row), 
-	column_to_number(ColumnLetter, Column), !,
-	get_piece(Column, Row, Piece), 
-	player_letter(Player, Piece),  
+		nth0(0, Move, ColumnLetter), 
+		nth0(1, Move, Row), 
+		nth0(2, Move, ColumnLetterDestination), 
+		nth0(3, Move, RowDestination),
+		column_to_number(ColumnLetter, Column), 
+		column_to_number(ColumnLetterDestination, ColumnDestination), 
+		get_piece(Column, Row, Piece), 
+		player_letter(Player, Piece),  
         opposing_player(Player,Enemy),
-        once(check_surroundings(Player, Enemy, Column, Row)).   % Analyzes surrounding area to the piece in question.
+        (check_surroundings(Player, Enemy, Column, Row, ColumnDestination, RowDestination) ; fail) .                   % Analyzes surrounding area to the piece in question.
         
-%Starts veryfing surrounding areas.
-check_surroundings(Player, Enemy, Column, Row) :-  
+
+% If no enemy is around player, he can move without restriction.
+check_surroundings(Player, Enemy, Column, Row, ColumnDestination, RowDestination) :-  
+		player_piece(Enemy, EnemyPiece), player_dux(Enemy, EnemyDux),
+		NewColumn1 is Column + 1,
+		get_piece(NewColumn1, Row, Piece1), 							  % Analyze all 4 sides of piece
+		different(Piece1, EnemyPiece) , different(Piece1,EnemyDux),   % If it finds an enemy, verifies if 
+		NewColumn2 is Column - 1 , 
+		get_piece(NewColumn2, Row, Piece2),                            % it's already in a warfare with an ally.
+		different(Piece2, EnemyPiece) , different(Piece2,EnemyDux), 
+		NewRow1 is Row + 1, 
+		get_piece(Column, NewRow1, Piece3), 
+		different(Piece3, EnemyPiece) , different(Piece3,EnemyDux) , 
+		NewRow2 is Row - 1 , 
+	 	get_piece(Column, NewRow2, Piece4), 
+		different(Piece4, EnemyPiece) , different(Piece4,EnemyDux). % If not, then the piece can move.
+
+% Starts veryfing surrounding areas.
+check_surroundings(Player, Enemy, Column, Row, ColumnDestination, RowDestination) :-  
 		(((NewColumn1 is Column + 1,
-			get_piece(NewColumn1, Row, Piece),	% Analyze all 4 sides of piece
-		  	player_letter(N, Piece),
-		  	equal(N, Enemy), 
-		  	once(is_in_previous_warfare(NewColumn1, Row, Player, Column, Row)), !) ;  % If it finds an enemy, verifies if 
+			get_piece(NewColumn1, Row, Piece1),							  % Analyze all 4 sides of piece
+			player_letter(N1, Piece1), 
+		  	equal(N1, Enemy), 
+		  	once(is_in_previous_warfare(Column, Row, Player, NewColumn1, Row)),
+		  	is_offensive_move(Player, Column, Row, ColumnDestination, RowDestination)) ;   % If it finds an enemy, verifies if 
 		(NewColumn2 is Column - 1 , 
-		  	get_piece(NewColumn2, Row, Piece),                            %it's already in a warfare with an ally.
-		  	player_letter(N, Piece), 
-		  	equal(N, Enemy), 
-		  	once(is_in_previous_warfare(NewColumn2, Row, Player, Column, Row)), !)) ; 
+		  	get_piece(NewColumn2, Row, Piece2),                            % it's already in a warfare with an ally.
+		  	player_letter(N2, Piece2), 
+		  	equal(N2, Enemy), 
+		  	once(is_in_previous_warfare(Column, Row, Player, NewColumn2, Row)),
+		  	is_offensive_move(Player, Column, Row, ColumnDestination, RowDestination)) ; 
 		((NewRow1 is Row + 1, 
-		  	get_piece(Column, NewRow1, Piece),
-		  	player_letter(N, Piece), 
-		  	equal(N, Enemy), 
-		  	once(is_in_previous_warfare(Column, NewRow1, Player, Column, Row)), !) ;  
+		  	get_piece(Column, NewRow1, Piece3),
+		  	player_letter(N3, Piece3), 
+		  	equal(N3, Enemy), 
+		  	once(is_in_previous_warfare(Column, Row, Player, Column, NewRow1)),
+		  	is_offensive_move(Player, Column, Row, ColumnDestination, RowDestination)) ;  
 		 (NewRow2 is Row - 1 , 
-	 	  	get_piece(Column, NewRow2, Piece),
-		   	player_letter(N, Piece), 
-		   	equal(N, Enemy), 
-		   	once(is_in_previous_warfare(Column, NewRow2, Player, Column, Row)), !))). %If not, then the piece can move.
+	 	  	get_piece(Column, NewRow2, Piece4),
+		   	player_letter(N4, Piece4), 
+		   	equal(N4, Enemy), 
+		   	once(is_in_previous_warfare(Column, Row, Player, Column, NewRow2)),
+		   	is_offensive_move(Player, Column, Row, ColumnDestination, RowDestination))))). % If not, then the piece can move.
 
-%If no enemy is around player, he can move without restriction.
-check_surroundings(_, _, _, _).
 
-%Checks if surrouding enemy piece is already in warfare with another ally.
-is_in_previous_warfare(Column, Row, Player, PlayerColumn, PlayerRow) :-
-		is_offensive_move(Player, PlayerColumn, PlayerRow, Column, Row),
-		((NewColumn1 is Column + 1, 
-			NewColumn1 \== PlayerColumn, 
-			get_piece(NewColumn1, Row, Piece),
-			player_letter(N, Piece), 
-			equal(N, Player)) ;  % If enemy is already surrounded
+% Checks if surrouding enemy piece is already in warfare with another ally.
+is_in_previous_warfare(PlayerColumn, PlayerRow, Player, Column, Row) :-
+		(((NewColumn1 is Column + 1, 
+			(NewColumn1 \== PlayerColumn ; Row \== PlayerRow),
+			get_piece(NewColumn1, Row, Piece1),
+			player_letter(N1, Piece1), 
+			equal(N1, Player)) ;                         % If enemy is already surrounded
 		 (NewColumn2 is Column - 1 , 
-		 	NewColumn2 \== PlayerColumn, 
-		 	get_piece(NewColumn2, Row, Piece),
-		 	player_letter(N, Piece), 
-		 	equal(N, Player)) ; % by an ally, then the piece selected
-		 (NewRow1 is Row + 1, NewRow1 \== PlayerRow, 
-		 	get_piece(Column, NewRow1, Piece),
-		 	player_letter(N, Piece), 
-		 	equal(N, Player)) ;        % can move freely.
-		 (NewRow2 is Row - 1 , NewRow2 \== PlayerRow, 
-		 	get_piece(Column, NewRow2, Piece),
-		 	player_letter(N, Piece), 
-		 	equal(N, Player))).
-
-%checks if a movent is offensive
-is_offensive_move(Player, _, _, Column, Row):- 
-		opposing_player(Player,Enemy), player_dux(Enemy, EnemyDux),	
-		((((NewColumn1 is Column + 1,
-			get_piece(NewColumn1, Row, Piece), % Analyze all 4 sides of piece
-		  	equal(Piece, EnemyDux)) ;  % If it finds an enemy, verifies if 
-		(NewColumn2 is Column - 1 , 
-		  	get_piece(NewColumn2, Row, Piece),    %it's already in a warfare with an ally.
-		  	equal(Piece, EnemyDux))) ; 
-		((NewRow1 is Row + 1, 
-		  	get_piece(Column, NewRow1, Piece),
-		  	equal(Piece, EnemyDux)) ;  
+		 	(NewColumn2 \== PlayerColumn ; Row \== PlayerRow),
+		 	get_piece(NewColumn2, Row, Piece2),
+		 	player_letter(N2, Piece2), 
+		 	equal(N2, Player))) ;                         % by an ally, then the piece selected
+		 ((NewRow1 is Row + 1, 
+		 	(Column \== PlayerColumn ; NewRow1 \== PlayerRow),
+		 	get_piece(Column, NewRow1, Piece3),
+		 	player_letter(N3, Piece3), 
+		 	equal(N3, Player)) ;                         % can move freely.
 		 (NewRow2 is Row - 1 , 
-	 	  	get_piece(Column, NewRow2, Piece),
-		   	equal(Piece, EnemyDux))))).
+		 	(Column \== PlayerColumn ; NewRow2 \== PlayerRow),
+		 	get_piece(Column, NewRow2, Piece4),
+		 	player_letter(N4, Piece4), 
+		 	equal(N4, Player)))).                            
+
+
+is_offensive_move(Player, PlayerColumn, PlayerRow, Column, Row):- 
+		opposing_player(Player,Enemy), player_dux(Enemy, EnemyDux), 
+		((((NewColumn1 is Column + 1,
+			get_piece(NewColumn1, Row, Piece1),							  % Analyze all 4 sides of piece
+		  	equal(Piece1, EnemyDux)) ;  % If it finds an enemy, verifies if 
+		(NewColumn2 is Column - 1 , 
+		  	get_piece(NewColumn2, Row, Piece2),                            % it's already in a warfare with an ally.
+		  	equal(Piece2, EnemyDux))) ; 
+		((NewRow1 is Row + 1, 
+		  	get_piece(Column, NewRow1, Piece3),
+		  	equal(Piece3, EnemyDux)) ;  
+		 (NewRow2 is Row - 1 , 
+	 	  	get_piece(Column, NewRow2, Piece4),
+		   	equal(Piece4, EnemyDux))));
+		(column_to_number(PlayerColumnLetter, PlayerColumn),
+		 column_to_number(ColumnLetter, Column),
+		 move_X_Captured_Pieces([PlayerColumnLetter, PlayerRow, ColumnLetter, Row],Player,_))).
 
 /*********************************/
 /****** MOVE GET AND SET*********/
@@ -193,7 +219,7 @@ get_piece(Column,Line,Piece):-
         nth1(Column, X, Piece), !).
 
 %If it's not a valid position.
-get_piece(_,_,_,Piece):- 
+get_piece(_,_,Piece):- 
         Piece = 'x'.
 
 %Replaces a character in a given position on the board.
@@ -202,7 +228,7 @@ set_piece(ColumnLetter,Line,Piece):-
         line_to_position(Line, LineNumber),                                   
         board(Board), 
         replace(Board,LineNumber,Column,Piece,NewBoard),
-        retract(board(Board)),
+        retract(board(Board)), 
         assert(board(NewBoard)).
 
 
