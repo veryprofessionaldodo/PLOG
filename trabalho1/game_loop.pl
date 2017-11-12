@@ -9,7 +9,9 @@
 /****************************/
 /*****BEGINNING OF GAME *****/
 /****************************/
-
+/**
+*Start Function CALL THIS to start the program
+*/
 latrunculli:- 
         cls, nl, nl,
         write('                                             LATRUNCULLI \n \n \n'),
@@ -21,7 +23,9 @@ latrunculli:-
         read(ReadMode), 
         playMode(ReadMode).
 
-/* Starts a new game in pvp. */
+/** 
+*Starts a new game in pvp. 
+*/
 playMode(1) :-  
         clear_global_variables, 
         cls,  
@@ -29,7 +33,9 @@ playMode(1) :-
         print_make_move, nl, !, 
         play(1,0,0), nl.
 
-/* Starts a new game in pvAI. */
+/* 
+*Starts a new game in pvAI. 
+*/
 playMode(2) :-  
         clear_global_variables, 
         cls, 
@@ -38,7 +44,9 @@ playMode(2) :-
         print_make_move, nl, 
         play(2,Level,0), nl.
 
-/* Starts a new game in AIvAI. */
+/** 
+*Starts a new game in AIvAI. 
+*/
 playMode(3) :-  
         clear_global_variables, 
         cls, 
@@ -47,8 +55,9 @@ playMode(3) :-
         print_board,nl, 
         play(3,Level1,Level2), nl.
 
-/* Invalid game mode. */
-
+/** 
+*Invalid game mode. 
+*/
 playMode(_) :-  
         cls, nl, nl,
         write('                                             LATRUNCULLI     \n \n \n'),
@@ -57,9 +66,12 @@ playMode(_) :-
         write('                                       2 - Player Versus AI   \n'),
         write('                                        3 - AI Versus AI      \n\n'),
         write('                                               '),
-		read(ReadMode), 
+	read(ReadMode), 
         playMode(ReadMode).
 
+/**
+*Clears all existent boards and creates a new one, also clear all playcounters and creates a new one
+*/
 clear_global_variables :- 
         retractall(board(_)), 
         initial_board(StartBoard), 
@@ -67,6 +79,9 @@ clear_global_variables :-
         retractall(playcounter(_)), 
         assert(playcounter(101)).
 
+/**
+*Menu to get the ai level for pvAI
+*/
 get_level_ai(Level,0):- 
         cls, nl, nl,
         write('                                             LATRUNCULLI  \n \n \n'),
@@ -77,6 +92,9 @@ get_level_ai(Level,0):-
         write('                                               '),
         read(Level).
 
+/**
+*Menu to get the ai level for AIvAI
+*/
 get_level_ai(Level,AiNumber):- 
         cls, nl, nl,
         write('                                             LATRUNCULLI  \n \n \n'),
@@ -92,7 +110,9 @@ get_level_ai(Level,AiNumber):-
 /********THE GAME LOOP ******/
 /****************************/
 
-/* Game Loop, in pvp. */
+/** 
+*Game Loop, in pvp. 
+*/
 play(1,0,0) :-  
         cls,nl, nl,  
         write('                                             LATRUNCULLI  \n \n \n'),
@@ -106,7 +126,9 @@ play(1,0,0) :-
         read_move(2), %l?jogada jogador 2
         play(1,0,0). %chamada recursiva
 
-/* Game Loop in pvAI. */
+/** 
+Game Loop in pvAI. 
+*/
 play(2,LevelAi,0):- 
         cls,nl, nl,  
         write('                                             LATRUNCULLI  \n \n \n'),
@@ -115,14 +137,21 @@ play(2,LevelAi,0):-
         aI_move(2, LevelAi),  sleep(2),
         play(2,LevelAi,0).
  
-/* Game Loop in AIvAI. */
+/** 
+Game Loop in AIvAI. 
+*/
 play(3,LevelAi1,LevelAi2):- 
         cls,nl, nl, 
         aI_move(1, LevelAi1), sleep(2), 
         aI_move(2, LevelAi2), sleep(2), 
         play(3,LevelAi1,LevelAi2).
 
-%* Reads move for a player passed in argument. 
+/**
+*Reads move for a player passed in argument. 
+*Checks if the move is valid
+*if it is moves the piece, and removes any captured pieces caused by that move
+*checks if the game is over    
+*/
 read_move(Player):- 
         nl, nl,
         format('                                        Make your move, Player ~w   \n \n',[Player]),
@@ -130,10 +159,13 @@ read_move(Player):-
         read(MoveString), 
         string_to_move(MoveString, Move), 
         check_if_valid(Move, Player), !,
-	    move(Move),
+	move(Move),
         remove_captured_pieces(Move,Player),
         is_game_over.
 
+/**
+* if the move is invalid, error message and trys to read it again
+*/
 read_move(Y):- 
         write('\n\n                                        '),
         write('Invalid play!\n\n'), 
@@ -144,6 +176,10 @@ read_move(Y):-
 /****Removes captured PIECES*/
 /****************************/
 
+/**
+*Removes all captured pieces caused by a movement 
+taking into account all the rules
+*/
 remove_captured_pieces(Move,Player) :- 
         checks_the_direction_of_move(Move,Direction),
         nth0(2, Move, PosX), 

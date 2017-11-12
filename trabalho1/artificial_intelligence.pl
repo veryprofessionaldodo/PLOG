@@ -486,7 +486,7 @@ is_Dux_in_Guerrilla(Player,DuxPos):-
         nth0(1,NextPieceDown,LineDown),                           
         column_to_number(ColumnLetterDown, ColumnDown),
         get_piece(ColumnDown,LineDown,PieceDown),
-        pposing_player(Player,OppPlayer4),
+        opposing_player(Player,OppPlayer4),
         player_letter(OppPlayer4,PieceDown);
         add1_pos(2,DuxPos,NextPieceLeft), 
         nth0(0,NextPieceLeft,ColumnLetterLeft), 
