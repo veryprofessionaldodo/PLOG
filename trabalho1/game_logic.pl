@@ -96,7 +96,7 @@ check_piece_warfare(Move) :-
         
 
 % If no enemy is around player, he can move without restriction.
-check_surroundings(Player, Enemy, Column, Row, ColumnDestination, RowDestination) :-  
+check_surroundings(_, Enemy, Column, Row, _, _) :-  
 		player_piece(Enemy, EnemyPiece), player_dux(Enemy, EnemyDux),
 		NewColumn1 is Column + 1,
 		get_piece(NewColumn1, Row, Piece1), 							  % Analyze all 4 sides of piece
@@ -690,3 +690,21 @@ check_if_valid(Move, Player) :-
         attempt_to_move(Move).
 
 
+%checks if the dux has atleast one enemy around him
+dux_sides_attacked(Player,DuxPos,Counter):-
+        check_if_enemy(DuxPos,Player,1,CounterUP),
+	check_if_enemy(DuxPos,Player,4,CounterDOWN),
+	check_if_enemy(DuxPos,Player,2,CounterLEFT),
+	check_if_enemy(DuxPos,Player,3,CounterRIGHT),
+	Counter is CounterUP+CounterDOWN+CounterLEFT+CounterRIGHT.
+
+check_if_enemy(Pos,Player,Direction,Counter):-
+        add1_pos(Direction,Pos,NextPiece), 
+        nth0(0,NextPiece,ColumnLetter), 
+        nth0(1,NextPiece,Line),                           
+        column_to_number(ColumnLetter, Column),
+        get_piece(Column,Line,Piece),
+        opposing_player(Player,OppPlayer1),
+        player_letter(OppPlayer1,Piece),
+	Counter is 1;
+	Counter is 0.
