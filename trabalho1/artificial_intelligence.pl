@@ -64,7 +64,6 @@ aI_move(Player, 2):-
         format('                                         Player ~w did move :\n', [Player]),
         write( '                                            '), write(Move), write('.\n'),
 	write('                                        '),
-        
 	remove_captured_pieces(Move,Player),  sleep(2),
         is_game_over(Player).
 

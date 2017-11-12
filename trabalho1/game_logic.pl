@@ -600,19 +600,27 @@ is_game_over(_):-
         cls, print_board, 
         write('\n The game ended with a draw. \n'), break.
 
+check_possible_moves(Player):-
+	opposing_player(Player,OppPlayer),	
+        gather_all_moves([[]|ListOfMoves],OppPlayer), 
+        nonvar(ListOfMoves), 
+        length(ListOfMoves,X),!,
+	X>0.
+
 check_possible_moves(2):- 
         gather_all_moves([[]|ListOfMoves],1), 
         nonvar(ListOfMoves), 
-        length(ListOfMoves,X),
+        length(ListOfMoves,X),!,
         X<1,
         write('\n Player 1 Lost, there is possible move \n'), break.
                        
 check_possible_moves(1):- 
         gather_all_moves([[]|ListOfMoves],2), 
-        nonvar(ListOfMoves), 
-        length(ListOfMoves,X),
+	nonvar(ListOfMoves), 
+        length(ListOfMoves,X),!,
         X<1,
         write('\n Player 2 Lost, there is possible move \n'), break. 
+
 
 %checks if one of the players lost all is pieces or Dux
 
