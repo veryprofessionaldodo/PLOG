@@ -622,19 +622,20 @@ is_game_over(Player):-board(Board), check_soldiers_and_Dux(Board,0,0,0,0),
         assert(playcounter(Y)),
         check_possible_moves(Player). 
 
-is_game_over(Player):- 
-		\+check_possible_moves(Player),
-		opposing_player(Player,OppPlayer),
-		format('\n Player ~w Lost, there is possible move \n',[OppPlayer]), break.
 
-is_game_over(_):-
+is_game_over(_):-playcounter(X), X<1,
         cls, print_board, 
         write('\n The game ended with a draw. \n'), break.
 
+is_game_over(Player):- 
+             opposing_player(Player,OppPlayer),
+             cls, print_board,
+             format('\n Player ~w Lost, there is possible move \n',[OppPlayer]), break.
+
 check_possible_moves(Player):-
 	opposing_player(Player,OppPlayer),	
-        gather_all_moves([[]|ListOfMoves],OppPlayer),!,  
-        length(ListOfMoves,X),!,
+        gather_all_moves(ListOfMoves,OppPlayer),!,  
+        length(ListOfMoves,X),
 	X>0.
 
 

@@ -15,13 +15,11 @@ aI_move(Player, 1):-
 	format('                                        Player ~w is thinking...\n', [Player]), 
         
 	print_board, nl, nl, sleep(2),
-	gather_all_moves([[]|ListOfMoves],Player),!,
-	nonvar(ListOfMoves),
+	gather_all_moves(ListOfMoves,Player),!,
 	length(ListOfMoves,X),
 	X>0,
 	random_member(NL, ListOfMoves),
-        create_move(NL, Move),
-        move(Move),
+        move(NL),
 	
         cls, nl, nl,
         write('                                           LATRUNCULLI              \n \n \n'),
@@ -29,9 +27,9 @@ aI_move(Player, 1):-
         format('                                        Player ~w is thinking...\n', [Player]), 
         print_board, nl, nl,  
         format('                                           Player ~w did move :\n', [Player]),
-        write( '                                           '), write(Move), write('.'), sleep(2),
+        write( '                                           '), write(NL), write('.'), sleep(2),
 	
-        remove_captured_pieces(Move,Player),
+        remove_captured_pieces(NL,Player),
         is_game_over(Player).
 
 /**
@@ -49,8 +47,7 @@ aI_move(Player, 2):-
         
 	print_board, nl, nl, sleep(2), 
 
-	gather_all_moves([[]|ListOfMoves],Player),!,
-	nonvar(ListOfMoves), 
+	gather_all_moves(ListOfMoves,Player),!, 
 	length(ListOfMoves,X),
 	X>0,
         choose_best_move(ListOfMoves, Player, Move),
@@ -77,16 +74,18 @@ choose_best_move_helper([], _, NL,CurrentBestCapturedPieces, NumberofCaptures, F
         FoundAttackDux\= [],
         NL=FoundAttackDux.
                  
-choose_best_move_helper([Move|T], Player, NL,CurrentBestCapturedPieces, NumberofCaptures, FoundAttackDux):- 
-        create_move(Move, H),
+choose_best_move_helper([H|T], Player, NL,CurrentBestCapturedPieces, NumberofCaptures, FoundAttackDux):- 
         does_move_check_mate(H,Player),
         NL=H;
-        create_move(Move, H),
         move_X_Captured_Pieces(H,Player,Counter), 
         Counter>NumberofCaptures, 
         choose_best_move_helper(T, Player, NL,H, Counter, FoundAttackDux);
-        create_move(Move, H),
         NumberofCaptures<1,
+	nth0(0,H,ColumnPiece),
+	nth0(1,H,LinePiece),
+	column_to_number(ColumnPiece,ColumnPieceN),
+	get_piece(ColumnPieceN,LinePiece,Piece),
+	player_piece(_,Piece),
 	nth0(2,H,ColumnLetter), 
         nth0(3,H,Line), 
 	Pos=[ColumnLetter,Line],
@@ -97,118 +96,95 @@ choose_best_move_helper([Move|T], Player, NL,CurrentBestCapturedPieces, Numberof
 choose_best_move(ListOfMoves, Player, NL):-
 	random_permutation(ListOfMoves, NewRandomList),
 	choose_best_move_helper(NewRandomList, Player, NL,[], 0, []);  
-	random_member(Move, ListOfMoves),
-        create_move(Move, NL).
+	random_member(NL, ListOfMoves).
 
 /**
 *Gather all moves for all pieces.
 */
-gather_all_moves([ListOfMoves|FinalList], Player) :- 
-		board(Board), 
-		ListOfMoves = [], 
-		gather_moves_recursive(Board, ListOfMoves, 8, Player, FinalList).
-
-% Recursive function that calls itself to see all the pieces.
-gather_moves_recursive([Row|Tail], ListOfMoves, RowNumber, Player, FinalList) :- 
-		RowNumber > 0, 
-		gather_moves_by_row(Row, [], 1, RowNumber,  Player, Tmp2List), 
-		NewRow is RowNumber - 1, 
-		once(append(Tmp2List, ListOfMoves, NewList)), 
-		gather_moves_recursive(Tail, NewList, NewRow, Player, FinalList).
-
-% End of recursion.
-gather_moves_recursive(_, ListOfMoves, _, _, FinalList) :- 
-		copy(ListOfMoves, FinalList).
-
-% Gather all pieces in a Row.
-gather_moves_by_row([Piece|Tail], ListOfMoves, ColumnNumber, RowNumber, Player, FinalList) :- 
-		RowNumber > 0, 
-		NewColumn is ColumnNumber + 1,  
-		NewColumn < 12, 
-		player_letter(Player, Piece),
-		gather_moves_piece(Piece, ColumnNumber, RowNumber, [], TmpList), 
-		append(TmpList, ListOfMoves, NewList),
-		gather_moves_by_row(Tail, NewList, NewColumn, RowNumber, Player, FinalList). 
-
-% Gather all pieces in a Row.
-gather_moves_by_row([_|Tail], ListOfMoves, ColumnNumber, RowNumber, Player, FinalList) :- 
-		RowNumber > 0, 
-		NewColumn is ColumnNumber + 1, 
-		NewColumn < 12, 
-		gather_moves_by_row(Tail, ListOfMoves, NewColumn, RowNumber, Player, FinalList).
-
-% Has reached the ending of row.
-gather_moves_by_row(_, ListOfMoves, _, _, _, FinalList) :-
-			copy(ListOfMoves, FinalList).
-
-% Gather all moves in a specific place.			
-gather_moves_piece(_, ColumnNumber, RowNumber, ListOfMoves, FinalList) :- 
-		NewRow1 is RowNumber - 1, 
-		gather_moves_down(ListOfMoves, ColumnNumber, RowNumber, ColumnNumber, NewRow1, FinalList).
-
-gather_moves_left(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :- 
-		get_piece(ColumnNumber, RowNumber, NewPiece), 
-		NewPiece == ' ', 
-		column_to_number(OriginalColumnLetter, OriginalColumn),
-		column_to_number(ColumnNumberLetter, ColumnNumber),
-		check_piece_warfare([OriginalColumnLetter, OriginalRow, ColumnNumberLetter, RowNumber]),
-		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)),
-		NewColumn1 is ColumnNumber - 1, 
-		NewColumn1 > 0,  
-		gather_moves_left(NewList, OriginalColumn, OriginalRow, NewColumn1, OriginalRow, FinalList).
-
-% Has reached the end of column, or hit another piece.
-gather_moves_left(ListOfMoves, OriginalColumn, OriginalRow, _, _, FinalList) :- 
-		NewColumn1 is OriginalColumn + 1, 
-		gather_moves_right(ListOfMoves, OriginalRow, OriginalRow, NewColumn1, OriginalRow, FinalList). 
-
-gather_moves_right(_, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :- 
-    	get_piece(ColumnNumber, RowNumber, NewPiece), 
-    	NewPiece == ' ', 
-		NewColumn1 is ColumnNumber + 1, 
-		NewColumn1 < 12,
-		column_to_number(OriginalColumnLetter, OriginalColumn),
-		column_to_number(ColumnNumberLetter, ColumnNumber),
-		check_piece_warfare([OriginalColumnLetter, OriginalRow, ColumnNumberLetter, RowNumber]),
-		gather_moves_right(_, OriginalColumn, OriginalRow, NewColumn1, OriginalRow, FinalList).
-
-% Has reached the end of column, or hit another piece.
-gather_moves_right(ListOfMoves, _, _, _, _, FinalList) :- 
-		copy(ListOfMoves, FinalList). 
-
-gather_moves_up(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :-
-		get_piece(ColumnNumber, RowNumber, NewPiece), 
-		NewPiece == ' ', 
-		NewRow1 is RowNumber + 1, 
-		NewRow1 < 9, 
-		column_to_number(OriginalColumnLetter, OriginalColumn),
-		column_to_number(ColumnNumberLetter, ColumnNumber),
-		check_piece_warfare([OriginalColumnLetter, OriginalRow, ColumnNumberLetter, RowNumber]),
-		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)), 
-		gather_moves_up(NewList, OriginalColumn, OriginalRow, OriginalColumn, NewRow1, FinalList).
-
-% Has reached the end of row, or hit another piece.
-gather_moves_up(ListOfMoves, OriginalColumn, OriginalRow, _, _, FinalList) :- 
- 		NewColumn1 is OriginalColumn - 1, 
- 		gather_moves_left(ListOfMoves, OriginalColumn, OriginalRow, NewColumn1, OriginalRow, FinalList). 
-
-gather_moves_down(ListOfMoves, OriginalColumn, OriginalRow, ColumnNumber, RowNumber, FinalList) :-
-		NewRow1 is RowNumber - 1, 
-		NewRow1 > 0,
-		get_piece(ColumnNumber, RowNumber, NewPiece), 
-		NewPiece == ' ', 
-		column_to_number(OriginalColumnLetter, OriginalColumn),
-		column_to_number(ColumnNumberLetter, ColumnNumber),
-		check_piece_warfare([OriginalColumnLetter, OriginalRow, ColumnNumberLetter, RowNumber]),
-		once(append(ListOfMoves, [[OriginalColumn, OriginalRow, ColumnNumber, RowNumber]], NewList)),
-		gather_moves_down(NewList, OriginalColumn, OriginalRow, OriginalColumn, NewRow1, FinalList).
-
-% Has reached the end of row, or hit another piece.
-gather_moves_down(ListOfMoves, OriginalColumn, OriginalRow, _, _, FinalList) :- 
-		NewRow1 is OriginalRow + 1, 
-		gather_moves_up(ListOfMoves, OriginalColumn, OriginalRow, OriginalColumn, NewRow1, FinalList). 
+gather_all_moves(FinalList,Player):-find_all_moves([],Player,FinalList).
 
 
+find_all_moves(StartList,Player,FinalList):-find_all_moves_line(StartList,Player,8,FinalList).
+
+find_all_moves_line(StartList,Player,Line,FinalList):-
+	Line>0,
+        find_all_moves_column([],Player,Line,1,FinalColumnList),
+        NEwLine is Line-1,
+        append(StartList,FinalColumnList,NewStartList),
+        find_all_moves_line(NewStartList,Player,NEwLine,FinalList).
+
+
+find_all_moves_line(StartList,_,_,FinalList):- FinalList = StartList.
+
+find_all_moves_column(StartList,Player,Line,Column,FinalColumnList):-
+	Column < 11,
+        get_piece(Column,Line,Piece),
+        player_letter(Player,Piece),
+	column_to_number(ColumnLetter,Column),
+        check_all_pos_up([],[ColumnLetter,Line],Player,[ColumnLetter,Line],ListUp),
+        check_all_pos_down([],[ColumnLetter,Line],Player,[ColumnLetter,Line],ListDown),
+        check_all_pos_left([],[ColumnLetter,Line],Player,[ColumnLetter,Line],ListLeft),
+        check_all_pos_right([],[ColumnLetter,Line],Player,[ColumnLetter,Line],ListRight),
+        NEwColumn is Column+1,
+        append(StartList,ListUp,List1),
+        append(List1,ListDown,List2),
+        append(List2,ListLeft,List3),
+        append(List3,ListRight,NewColumnList),
+        find_all_moves_column(NewColumnList,Player,Line,NEwColumn,FinalColumnList);
+	Column < 11,
+	NEwColumn is Column+1,
+	find_all_moves_column(StartList,Player,Line,NEwColumn,FinalColumnList).
+        
+find_all_moves_column(StartList,_,_,_,FinalColumnList):-FinalColumnList = StartList.
+
+
+check_all_pos_up(StartList,Pos,Player,LastNewPos,ListUp):-
+        add1_pos(1,LastNewPos,NextPos), 
+        append(Pos, NextPos, Move),
+        check_if_valid(Move, Player),
+        append(StartList,[Move],NewListUp),
+        check_all_pos_up(NewListUp,Pos,Player,NextPos,ListUp);
+        add1_pos(1,LastNewPos,NextPos),
+        check_all_pos_up(StartList,Pos,Player,NextPos,ListUp).
+        
+        
+check_all_pos_up(StartList,_,_,_,ListUp):- ListUp = StartList.
+
+check_all_pos_down(StartList,Pos,Player,LastNewPos,ListDown):-
+        add1_pos(4,LastNewPos,NextPos), 
+        append(Pos, NextPos, Move),
+        check_if_valid(Move, Player),
+        append(StartList,[Move],NewListDown),
+        check_all_pos_down(NewListDown,Pos,Player,NextPos,ListDown);
+        add1_pos(4,LastNewPos,NextPos),
+        check_all_pos_down(StartList,Pos,Player,NextPos,ListDown).
+        
+        
+check_all_pos_down(StartList,_,_,_,ListDown):- ListDown = StartList.
+
+check_all_pos_left(StartList,Pos,Player,LastNewPos,ListLeft):-
+        add1_pos(2,LastNewPos,NextPos), 
+        append(Pos, NextPos, Move),
+        check_if_valid(Move, Player),
+        append(StartList,[Move],NewListLeft),
+        check_all_pos_left(NewListLeft,Pos,Player,NextPos,ListLeft);
+        add1_pos(2,LastNewPos,NextPos),
+        check_all_pos_left(StartList,Pos,Player,NextPos,ListLeft).
+        
+        
+check_all_pos_left(StartList,_,_,_,ListLeft):- ListLeft = StartList.
+
+check_all_pos_right(StartList,Pos,Player,LastNewPos,ListRight):-
+        add1_pos(3,LastNewPos,NextPos), 
+        append(Pos, NextPos, Move),
+        check_if_valid(Move, Player),
+        append(StartList,[Move],NewListRight),
+        check_all_pos_right(NewListRight,Pos,Player,NextPos,ListRight);
+        add1_pos(3,LastNewPos,NextPos),
+        check_all_pos_up(StartList,Pos,Player,NextPos,ListRight).
+        
+        
+check_all_pos_right(StartList,_,_,_,ListRight):- ListRight = StartList.
 /****************************/
  %NUMBER 1 PRIORITY               
 /***************************/
