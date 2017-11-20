@@ -7,6 +7,7 @@
 */ 
 attempt_to_move(Move) :- 
 		is_vertical_or_horizontal(Move), !, 
+		advances_move_piece(Move),!,
 		once(check_piece_warfare(Move)).
 
 
@@ -24,6 +25,30 @@ vertical(Move) :-
 		nth0(0, Move, Column), 
 		nth0(2, Move, Column), 
 		traverse_move_vertical(Move).  
+
+check_next_piece(Direction, PosPiece, PosFinal):- 
+                add1_pos(Direction,PosPiece,NextPiece),
+                nth0(0,NextPiece,X),
+                nth0(1,NextPiece,Y),
+                column_to_number(X,Column),
+                get_piece(Column, Y, ' '),
+                (nth0(0,PosFinal,X1),
+                nth0(1,PosFinal,Y1),
+                column_to_number(X1,Column1),
+                Column1=Column, Y=Y1;
+                 check_next_piece(Direction, NextPiece, PosFinal)).
+
+
+
+advances_move_piece(Move):-
+                checks_the_direction_of_move(Move,Direction),
+                nth0(2,Move,X),
+                nth0(3,Move,Y),
+                Pos=[X,Y],
+                nth0(0,Move,X1),
+                nth0(1,Move,Y1),
+                NextPiece= [X1,Y1],
+                check_next_piece(Direction,NextPiece,Pos).
 
 %Vertical
 traverse_move_vertical(Move) :- 
