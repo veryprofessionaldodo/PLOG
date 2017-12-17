@@ -3,7 +3,7 @@
 :-reconsult(utils).
 
 % total budget.
-budget(3000).
+budget(2500).
 
 % criteria_priority(Id,Description, Priority).
 criteria_priority(1,'Employee Efficiency', 0.4).
@@ -32,6 +32,11 @@ optimize :-
 	findall(CId, criteria_priority(CId, _Criterion, _Priority), Criteria), !, % Gather all criteria above.
 	findall(MId-Impact-Cost, (measure(MId, _Description, Cost, _Impacts, _Setbacks),
 			calculate_impact(MId, Impact)), Measures), !, % Gather all measures above.
+	Result=[],
+	length(Measures, MeasuresLength),
+	domain(Result, 0, MeasuresLength),
+	constrain(Result)
+	labeling([],Result),
 	write(Measures).
 	
 
