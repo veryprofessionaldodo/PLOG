@@ -6,18 +6,47 @@
 budget(2500).
 
 % criteria_priority(Id,Description, Priority).
-criteria_priority(1,'Employee Efficiency', 0.4).
-criteria_priority(2,'Public Relations', 0.1).
-criteria_priority(3,'Software', 0.3).
-criteria_priority(4,'Hardware', 0.3).
+criteria_priority('Employee Efficiency', 0.4).
+criteria_priority('Public Relations', 0.1).
+criteria_priority('Software', 0.3).
+criteria_priority('Hardware', 0.2).
 
 %measure(Id, Description, Cost, Bonus([Id-Improvement]), Setbacks([Id-Impact])).
-measure(1, 'Tutorials', 100, [1-20, 2-40], [3-10]).
-measure(2, 'New Computers', 500, [3-50, 4-80], [1-10]).
-measure(3, 'Hire more staff', 900, [1-100, 2-200], [3-20, 4-30]).
-measure(4, 'Improve food quality', 200, [1-40, 2-20], []).
-measure(5, 'In house software', 1000, [1-100, 2-200], [1-30]).
+measure('Tutorials', 100, [0-20, 1-40], [2-10]).
+measure('New Computers', 500, [2-50, 1-80], [0-10]).
+measure('Hire more staff', 900, [0-100, 1-200], [2-20, 3-30]).
+measure('Improve food quality', 200, [0-40, 1-20], []).
+measure('In house software', 1000, [0-100, 1-200], [0-30]).
 
+
+getCostImpact(AllPriorities,AllImpact):- findall(Priority,(criteria_priority(_,Priority)), AllPriorities),
+        findall(ImpactCost-Cost,(measure(_,Cost,Positive,Negative), getTotalImpact(Positive,Negative, 0, Impact,AllPriorities), ImpactCost is Impact /Cost), AllImpact),
+        write(AllPriorities),
+        write(AllImpact).
+        
+        
+getTotalImpact([] ,[], Helper, Impact,_):- Impact = Helper.
+                                  
+getTotalImpact([] ,[PN-IN|RN], Helper, Impact,AllPriorities):-  
+
+        nth0(PN, AllPriorities,NImp),
+        Newhelper is Helper -NImp*IN,
+        getTotalImpact([],RN,Newhelper,Impact,AllPriorities).
+        
+getTotalImpact([PP-IP|RP], [], Helper, Impact,AllPriorities):-
+        nth0(PP, AllPriorities, Imp),     
+        Newhelper is Helper + (Imp *IP),
+        getTotalImpact(RP,[],Newhelper,Impact,AllPriorities).           
+        
+getTotalImpact([PP-IP|RP],[PN-IN|RN], Helper, Impact,AllPriorities):-  
+        nth0(PP, AllPriorities, Imp),
+        nth0(PN, AllPriorities,NImp),
+        Newhelper is Helper + (Imp *IP-NImp*IN),
+        getTotalImpact(RP,RN,Newhelper,Impact,AllPriorities).
+        
+        
+        
+/*
 % Measures the total impact of a specific measure.
 calculate_impact(MeasureId, Impact) :-
 	measure(MeasureId, _Description, _Cost, Bonus, Setbacks), 
@@ -37,7 +66,7 @@ optimize :-
 	domain(Result, 0, MeasuresLength),
 	constrain(Result)
 	labeling([],Result),
-	write(Measures).
+	write(Measures).*/
 	
 
 	
