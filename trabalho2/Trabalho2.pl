@@ -21,10 +21,7 @@ measure('In house software', 1000, [0-10000, 1-20000], [0-3000]).
 
 getCostImpact(AllCost,AllImpact):- findall(Priority,(criteria_priority(_,Priority)), AllPriorities),
         findall(ImpactCost,(measure(_,Cost,Positive,Negative), getTotalImpact(Positive,Negative, 0, Impact,AllPriorities), ImpactCostBRound is Impact /Cost, ImpactCost is round(ImpactCostBRound)), AllImpact),
-        findall(Cost,measure(_,Cost,_,_), AllCost),
-        write(AllPriorities),
-        write(AllImpact),
-        write(AllCost).
+        findall(Cost,measure(_,Cost,_,_), AllCost).
         
         
 getTotalImpact([] ,[], Helper, Impact,_):- Impact = Helper.
@@ -46,11 +43,55 @@ getTotalImpact([PP-IP|RP],[PN-IN|RN], Helper, Impact,AllPriorities):-
         Newhelper is Helper + (Imp *IP-NImp*IN),
         getTotalImpact(RP,RN,Newhelper,Impact,AllPriorities).
 
-optimize(AllCost, AllImpact,Y,X):-
+optimize(AllCost, AllImpact,ListResult, MaxBudget):-
+        constrain(AllCost, AllImpact,ListResult,[], MaxBudget),!.
+
+
+exceedsBudget(AllCost,Pos,_,_):-
+        length(AllCost,L),
+        Pos>L.
+
+exceedsBudget(AllCost,Pos,List,MaxBudget):-
+        nth1(Pos,AllCost,Elem),
+        (Elem>MaxBudget;member(Pos, List)),
+        NewPos is Pos+1,
+        exceedsBudget(AllCost,NewPos,List,MaxBudget).
+        
+        
+constrain(_, _,ListResult,List, 0):-ListResult=List.
+
+constrain(AllCost, _,ListResult,List, MaxBudget):-
+        exceedsBudget(AllCost,1,List,MaxBudget),
+        ListResult=List.
+
+constrain(AllCost, AllImpact,ListResult,List, MaxBudget):-
           element(X,AllImpact,Y),
-          maximize(labeling([],[Y]), Y),
           element(X,AllCost,Cost),
-          minimize(labeling([],[Cost]),Cost).
+          append(List, [X], NewList),
+          Cost #=< MaxBudget,
+          all_distinct(NewList),
+          maximize(labeling([],[Y,Cost]), Y), 
+          NewBudget is MaxBudget-Cost,
+          constrain(AllCost, AllImpact,ListResult,NewList, NewBudget).
+
+solveProblem(Budget):-
+               getCostImpact(AllCost,AllImpact),
+               optimize(AllCost,AllImpact,Result,Budget),
+               showResult(Result).
+
+showResult(Result):-
+        findall(Name,(measure(Name,_,_,_)), AllMeasures),
+        write('You should apply the following measures:\n'),
+        show(Result, AllMeasures).
+
+show([], _).
+
+show([H|T], AllMeasures):-
+        nth1(H,AllMeasures,Elem),
+        write(Elem),
+        write('\n'),
+        show(T, AllMeasures).
+
 
 	
 
