@@ -12,17 +12,19 @@ criteria_priority('Software', 0.3).
 criteria_priority('Hardware', 0.2).
 
 %measure(Id, Description, Cost, Bonus([Id-Improvement]), Setbacks([Id-Impact])).
-measure('Tutorials', 100, [0-20, 1-40], [2-10]).
-measure('New Computers', 500, [2-50, 1-80], [0-10]).
-measure('Hire more staff', 900, [0-100, 1-200], [2-20, 3-30]).
-measure('Improve food quality', 200, [0-40, 1-20], []).
-measure('In house software', 1000, [0-100, 1-200], [0-30]).
+measure('Tutorials', 100, [0-2000, 1-4000], [2-1000]).
+measure('New Computers', 500, [2-5000, 1-8000], [0-1000]).
+measure('Hire more staff', 900, [0-10000, 1-20000], [2-2000, 3-3000]).
+measure('Improve food quality', 200, [0-4000, 1-2000], []).
+measure('In house software', 1000, [0-10000, 1-20000], [0-3000]).
 
 
-getCostImpact(AllPriorities,AllImpact):- findall(Priority,(criteria_priority(_,Priority)), AllPriorities),
-        findall(ImpactCost-Cost,(measure(_,Cost,Positive,Negative), getTotalImpact(Positive,Negative, 0, Impact,AllPriorities), ImpactCost is Impact /Cost), AllImpact),
+getCostImpact(AllCost,AllImpact):- findall(Priority,(criteria_priority(_,Priority)), AllPriorities),
+        findall(ImpactCost,(measure(_,Cost,Positive,Negative), getTotalImpact(Positive,Negative, 0, Impact,AllPriorities), ImpactCostBRound is Impact /Cost, ImpactCost is round(ImpactCostBRound)), AllImpact),
+        findall(Cost,measure(_,Cost,_,_), AllCost),
         write(AllPriorities),
-        write(AllImpact).
+        write(AllImpact),
+        write(AllCost).
         
         
 getTotalImpact([] ,[], Helper, Impact,_):- Impact = Helper.
@@ -43,30 +45,13 @@ getTotalImpact([PP-IP|RP],[PN-IN|RN], Helper, Impact,AllPriorities):-
         nth0(PN, AllPriorities,NImp),
         Newhelper is Helper + (Imp *IP-NImp*IN),
         getTotalImpact(RP,RN,Newhelper,Impact,AllPriorities).
-        
-        
-        
-/*
-% Measures the total impact of a specific measure.
-calculate_impact(MeasureId, Impact) :-
-	measure(MeasureId, _Description, _Cost, Bonus, Setbacks), 
-	findall(Good, (member(CId-Value, Bonus), criteria_priority(CId, _Desc, Priority), Good is (Value*Priority)), Positives),
-	findall(Bad, (member(CId-Value, Setbacks), criteria_priority(CId, _Desc, Priority), Bad is (Value*Priority)), Negatives),
-	sumlist(Positives, SumPos), 
-	sumlist(Negatives, SumNeg),
-	Impact is SumPos-SumNeg.
 
-optimize :-
-	budget(Budget),
-	findall(CId, criteria_priority(CId, _Criterion, _Priority), Criteria), !, % Gather all criteria above.
-	findall(MId-Impact-Cost, (measure(MId, _Description, Cost, _Impacts, _Setbacks),
-			calculate_impact(MId, Impact)), Measures), !, % Gather all measures above.
-	Result=[],
-	length(Measures, MeasuresLength),
-	domain(Result, 0, MeasuresLength),
-	constrain(Result)
-	labeling([],Result),
-	write(Measures).*/
+optimize(AllCost, AllImpact,Y,X):-
+          element(X,AllImpact,Y),
+          maximize(labeling([],[Y]), Y),
+          element(X,AllCost,Cost),
+          minimize(labeling([],[Cost]),Cost).
+
 	
 
 	
