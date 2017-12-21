@@ -2,9 +2,6 @@
 :-use_module(library(lists)).
 :-reconsult(utils).
 
-% total budget.
-budget(2500).
-
 % criteria_priority(Id,Description, Priority).
 criteria_priority('Employee Efficiency', 0.4).
 criteria_priority('Public Relations', 0.1).
