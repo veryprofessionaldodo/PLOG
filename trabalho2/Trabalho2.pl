@@ -43,7 +43,11 @@ getTotalImpact([PP-IP|RP],[PN-IN|RN], Helper, Impact,AllPriorities):-
         Newhelper is Helper + (Imp *IP-NImp*IN),
         getTotalImpact(RP,RN,Newhelper,Impact,AllPriorities).
 
-optimize(AllCost, AllImpact,ListResult, MaxBudget):-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%THIS CODE IS WORKING%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/*optimize(AllCost, AllImpact,ListResult, MaxBudget):-
         constrain(AllCost, AllImpact,ListResult,[], MaxBudget),!.
 
 
@@ -72,7 +76,48 @@ constrain(AllCost, AllImpact,ListResult,List, MaxBudget):-
           all_distinct(NewList),
           maximize(labeling([],[Y,Cost]), Y), 
           NewBudget is MaxBudget-Cost,
-          constrain(AllCost, AllImpact,ListResult,NewList, NewBudget).
+          constrain(AllCost, AllImpact,ListResult,NewList, NewBudget).*/
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+exceedsBudget(AllCost,Pos,_,_):-
+        length(AllCost,L),
+        Pos>L.
+
+exceedsBudget(AllCost,Pos,List,MaxBudget):-
+        nth1(Pos,AllCost,Elem),
+        (Elem#>MaxBudget;global_cardinality(List,[Pos-1])),
+        NewPos is Pos+1,
+        exceedsBudget(AllCost,NewPos,List,MaxBudget).
+
+optimize(AllCost, AllImpact,ListResult, MaxBudget):-
+        constrain(AllCost, AllImpact,ListResult,[],TotalEfeciency,0, MaxBudget),
+        length(AllImpact,L),
+        domain(ListResult,1,L),
+        all_distinct(ListResult),
+        maximize(labeling([],ListResult), TotalEfeciency).
+
+
+constrain(_, _,ListResult,List,TotalEfeciency,Efeciency, MaxBudget):-
+        MaxBudget#=0,
+        ListResult#=List,
+        TotalEfeciency#=Efeciency.
+
+constrain(AllCost, _,ListResult,List,TotalEfeciency,Efeciency,MaxBudget):-
+        exceedsBudget(AllCost,1,List,MaxBudget),
+        ListResult#=List,
+        TotalEfeciency#=Efeciency.
+
+
+constrain(AllCost, AllImpact,ListResult,List,TotalEfeciency,Efeciency, MaxBudget):-
+          element(X,AllImpact,Y),
+          element(X,AllCost,Cost),
+          append(List, [X], NewList),
+          Cost #=< MaxBudget,
+          NewBudget #= MaxBudget-Cost,
+          NewEfeciency #= Efeciency + Y,
+          constrain(AllCost, AllImpact,ListResult,NewList,TotalEfeciency,NewEfeciency,NewBudget).
+
 
 solveProblem(Budget):-
                getCostImpact(AllCost,AllImpact),
