@@ -47,7 +47,7 @@ getTotalImpact([PP-IP|RP],[PN-IN|RN], Helper, Impact,AllPriorities):-
 %THIS CODE IS WORKING%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-/*optimize(AllCost, AllImpact,ListResult, MaxBudget):-
+optimize(AllCost, AllImpact,ListResult, MaxBudget):-
         constrain(AllCost, AllImpact,ListResult,[], MaxBudget),!.
 
 
@@ -76,11 +76,11 @@ constrain(AllCost, AllImpact,ListResult,List, MaxBudget):-
           all_distinct(NewList),
           maximize(labeling([],[Y,Cost]), Y), 
           NewBudget is MaxBudget-Cost,
-          constrain(AllCost, AllImpact,ListResult,NewList, NewBudget).*/
+          constrain(AllCost, AllImpact,ListResult,NewList, NewBudget).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-exceedsBudget(AllCost,Pos,_,_):-
+/*exceedsBudget(AllCost,Pos,_,_):-
         length(AllCost,L),
         Pos>L.
 
@@ -98,15 +98,11 @@ optimize(AllCost, AllImpact,ListResult, MaxBudget):-
         maximize(labeling([],ListResult), TotalEfeciency).
 
 
-constrain(_, _,ListResult,List,TotalEfeciency,Efeciency, MaxBudget):-
-        MaxBudget#=0,
-        ListResult#=List,
-        TotalEfeciency#=Efeciency.
+constrain(_, _,List,List,Efeciency,Efeciency, MaxBudget):-
+        MaxBudget#=0.
 
-constrain(AllCost, _,ListResult,List,TotalEfeciency,Efeciency,MaxBudget):-
-        exceedsBudget(AllCost,1,List,MaxBudget),
-        ListResult#=List,
-        TotalEfeciency#=Efeciency.
+constrain(AllCost, _,List,List,Efeciency,Efeciency,MaxBudget):-
+        exceedsBudget(AllCost,1,List,MaxBudget).
 
 
 constrain(AllCost, AllImpact,ListResult,List,TotalEfeciency,Efeciency, MaxBudget):-
@@ -116,7 +112,7 @@ constrain(AllCost, AllImpact,ListResult,List,TotalEfeciency,Efeciency, MaxBudget
           Cost #=< MaxBudget,
           NewBudget #= MaxBudget-Cost,
           NewEfeciency #= Efeciency + Y,
-          constrain(AllCost, AllImpact,ListResult,NewList,TotalEfeciency,NewEfeciency,NewBudget).
+          constrain(AllCost, AllImpact,ListResult,NewList,TotalEfeciency,NewEfeciency,NewBudget).*/
 
 
 solveProblem(Budget):-
