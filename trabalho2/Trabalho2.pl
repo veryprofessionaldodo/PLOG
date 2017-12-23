@@ -21,6 +21,7 @@ getCostImpact(AllCost, AllImpact) :-
   findall(ImpactCost, (measure(_Description, Cost, Positives, Negatives), once(measureImpact(AllPriorities, Cost, Positives, Negatives, ImpactCost))), AllImpact),
   findall(Cost,measure(_, Cost,_,_), AllCost).
 
+% If priority sum is different than 1.
 getCostImpact(_,_) :-
   write('Invalid priority sum!'), fail.
 
@@ -33,56 +34,51 @@ measureImpact(AllPriorities, Cost, Positives, Negatives, Impact) :-
   ImpactRound is SumPos-SumNeg, 
   Impact is round(ImpactRound).
 
-exceedsBudget(AllCost,Pos,_,_):-
-        length(AllCost,L),
-        Pos>L.
-
-exceedsBudget(AllCost,Pos,List,MaxBudget):-
-        nth1(Pos,AllCost,Elem),
-        (Elem#>MaxBudget;global_cardinality(List,[Pos-1])),
-        NewPos is Pos+1,
-        exceedsBudget(AllCost,NewPos,List,MaxBudget).
-
+% Main function, calls all functions to solve problem.
 optimize(AllCost, AllImpact,ListResult, MaxBudget):-
-        constrain(AllCost, AllImpact,ListResult,[],TotalEfeciency,0, MaxBudget),
-        length(AllImpact,L),
-        domain(ListResult,1,L),
-        all_distinct(ListResult),
-        maximize(labeling([],ListResult), TotalEfeciency).
+  constrain(AllCost, AllImpact,ListResult,[],TotalEfficiency,0, MaxBudget),
+  length(AllImpact,L),
+  domain(ListResult,1,L),
+  all_distinct(ListResult),
+  maximize(labeling([],ListResult), TotalEfficiency).
 
+% Main restrictions.
+constrain(_, _,List,List,Efficiency,Efficiency, CurrentBudget):-
+  CurrentBudget#=0.
 
-constrain(_, _,List,List,Efeciency,Efeciency, MaxBudget):-
-        MaxBudget#=0.
+constrain(AllCost, _,List,List,Efficiency,Efficiency,CurrentBudget):-
+  fitsBudget(AllCost,1,List,CurrentBudget).
 
-constrain(AllCost, _,List,List,Efeciency,Efeciency,MaxBudget):-
-        exceedsBudget(AllCost,1,List,MaxBudget).
+constrain(AllCost, AllImpact,ListResult,List,TotalEfficiency,Efficiency, CurrentBudget):-
+  element(X,AllImpact,Y),
+  element(X,AllCost,Cost),
+  append(List, [X], NewList),
+  Cost #=< CurrentBudget,
+  NewBudget #= CurrentBudget-Cost,
+  NewEfficiency #= Efficiency + Y,
+  constrain(AllCost, AllImpact,ListResult,NewList,TotalEfficiency,NewEfficiency,NewBudget).
 
+% Checks if more measures can be fit into the available budget.
+fitsBudget(AllCost,Pos,List,CurrentBudget):-
+  nth1(Pos,AllCost,Elem),
+  (Elem#>CurrentBudget;global_cardinality(List,[Pos-1])),
+  NewPos is Pos+1,
+  fitsBudget(AllCost,NewPos,List,CurrentBudget).
 
-constrain(AllCost, AllImpact,ListResult,List,TotalEfeciency,Efeciency, MaxBudget):-
-          element(X,AllImpact,Y),
-          element(X,AllCost,Cost),
-          append(List, [X], NewList),
-          Cost #=< MaxBudget,
-          NewBudget #= MaxBudget-Cost,
-          NewEfeciency #= Efeciency + Y,
-          constrain(AllCost, AllImpact,ListResult,NewList,TotalEfeciency,NewEfeciency,NewBudget).
+fitsBudget(AllCost,Pos,_,_):-
+  length(AllCost,L),
+  Pos>L.
 
-
-
+% Show results recursively.
 showResult(Result):-
-        findall(Name,(measure(Name,_,_,_)), AllMeasures),
-        write('You should apply the following measures:\n'),
-        show(Result, AllMeasures).
+  findall(Name,(measure(Name,_,_,_)), AllMeasures),
+  write('You should apply the following measures:\n'),
+  show(Result, AllMeasures).
 
 show([], _).
 
 show([H|T], AllMeasures):-
-        nth1(H,AllMeasures,Elem),
-        write(Elem),
-        write('\n'),
-        show(T, AllMeasures).
-
-
-	
-
-	
+  nth1(H,AllMeasures,Elem),
+  write(Elem),
+  write('\n'),
+  show(T, AllMeasures).
