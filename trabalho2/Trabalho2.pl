@@ -1,12 +1,12 @@
 :-use_module(library(clpfd)).
 :-use_module(library(lists)).
+:-reconsult(test_cases2).
 
-:-reconsult(test_cases).
-
-% Function to be called from SICStus.
+% Function to be called from SICStus terminal.
 solveProblem(Budget):-
   statistics(walltime, [_TimeSinceStart | [_TimeSinceLastCall]]),
-  getCostImpact(AllCost,AllImpact), 
+  getCostImpact(AllCost,AllImpact),
+  !, 
   optimize(AllCost,AllImpact,Result,Budget),
   showResult(Result),
   statistics(walltime, [_NewTimeSinceStart | [ExecutionTime]]),
@@ -36,6 +36,7 @@ measureImpact(AllPriorities, Cost, Positives, Negatives, Impact) :-
 
 % Main function, calls all functions to solve problem.
 optimize(AllCost, AllImpact,ListResult, MaxBudget):-
+  write(AllImpact), nl,
   constrain(AllCost, AllImpact,ListResult,[],TotalEfficiency,0, MaxBudget),
   length(AllImpact,L),
   domain(ListResult,1,L),
