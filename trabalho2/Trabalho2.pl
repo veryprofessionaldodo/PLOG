@@ -1,15 +1,15 @@
 :-use_module(library(clpfd)).
 :-use_module(library(lists)).
-:-reconsult(utils).
+
 :-reconsult(test_cases).
 
 % Function to be called from SICStus.
 solveProblem(Budget):-
-  statistics(walltime, [TimeSinceStart | [TimeSinceLastCall]]),
+  statistics(walltime, [_TimeSinceStart | [_TimeSinceLastCall]]),
   getCostImpact(AllCost,AllImpact), 
   optimize(AllCost,AllImpact,Result,Budget),
   showResult(Result),
-  statistics(walltime, [NewTimeSinceStart | [ExecutionTime]]),
+  statistics(walltime, [_NewTimeSinceStart | [ExecutionTime]]),
   write('Execution took '), write(ExecutionTime), write(' ms.'), nl.
    
 % Measures the total impact of all measures.
