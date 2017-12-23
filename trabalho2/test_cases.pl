@@ -19,4 +19,4 @@ measure('Changes to team structure', 700, [1-2, 3-2, 5-6, 6-1, 8-2], [0-1, 2-1,4
 measure('Improvements to software development model', 800, [1-5, 3-3, 5-2, 7-4], [0-1, 2-1,4-3,7-2, 8-1]).
 measure('Better Software for Designers', 900, [3-5,5-3,6-2,7-4], [0-1,1-1,2-3,4-5,8-1]).
 measure('Better Software for Debugging', 400, [1-2,2-5,3-2,7-15], [0-1,4-1,5-3,6-5,8-4]).
-measure('Better Quality Control', 800, [1-2,5-5,6-2,7-15], [0-1,2-2,3-5,4-2,8-2).
+measure('Better Quality Control', 800, [1-2,5-5,6-2,7-15], [0-1,2-2,3-5,4-2,8-2]).
