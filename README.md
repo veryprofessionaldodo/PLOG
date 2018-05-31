@@ -1,5 +1,5 @@
 # PLOG
-MIEIC 2017/208
+MIEIC 2017/2018
 
 ## Trabalho1
 Pretende-se neste trabalho implementar, em linguagem Prolog, um jogo de tabuleiro
