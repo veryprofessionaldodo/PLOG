@@ -12,7 +12,7 @@ Devem ser incluídos pelo menos dois níveis de jogo para o computador. Deve ser
 interface adequada com o utilizador, em modo de texto.
 A aplicação terá um visualizador gráfico 3D, a realizar na Unidade Curricular de LAIG.
 
-##### Jogo escolhido: Latrunculi XXI: https://www.boardgamegeek.com/boardgame/209094/latrunculi-xxi
+##### Jogo escolhido: Latrunculi XXI - https://www.boardgamegeek.com/boardgame/209094/latrunculi-xxi
 
 ## Trabalho 2
 
